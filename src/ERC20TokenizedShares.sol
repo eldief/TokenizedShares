@@ -30,7 +30,7 @@ abstract contract ERC20TokenizedShares is ITokenizedShares, Clone, ERC20 {
      * @dev Equivalent for 'address public immutable factory'.
      */
     function factory() public pure returns (address) {
-        return _getArgAddress(0);
+        return _getArgAddress(12);
     }
 
     /**
@@ -38,7 +38,15 @@ abstract contract ERC20TokenizedShares is ITokenizedShares, Clone, ERC20 {
      * @dev Equivalent for 'uint256 public immutable keeperShares'.
      */
     function keeperShares() public pure returns (uint256) {
-        return _getArgUint256(20) * 10 ** decimals();
+        return _getArgUint256(32) * 10 ** decimals();
+    }
+
+    /**
+     * @notice User defined encoded data.
+     * @dev Equivalent for 'bytes public (immutable) customData'.
+     */
+    function customData() public pure returns (bytes memory) {
+        return _getArgBytes(128, _getArgUint256(96));
     }
 
     //--------------------------------------//
@@ -127,6 +135,7 @@ abstract contract ERC20TokenizedShares is ITokenizedShares, Clone, ERC20 {
      * @param owners Address to collect shares for.
      * @param balance This contract balance.
      * @param length Amount of owners to collect for.
+     * 
      * @return released Shares amount released to owners.
      */
     function _releaseOwnersShares(
