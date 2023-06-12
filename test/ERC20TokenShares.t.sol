@@ -56,10 +56,7 @@ contract ERC20TokenSharesTest is Test {
         shares[1] = 2_000;
         shares[2] = 1_000;
 
-        ERC20TokenSharesMock.Data memory data = ERC20TokenSharesMock.Data({
-            name: "NAME",
-            symbol: "SYMBOL"
-        });
+        ERC20TokenSharesMock.Data memory data = ERC20TokenSharesMock.Data({name: "NAME", symbol: "SYMBOL"});
         bytes memory encodedData = abi.encode(data);
 
         tokenizedShares = factory.addTokenizedShares(recipients, shares, encodedData);

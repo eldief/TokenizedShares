@@ -25,7 +25,7 @@ interface ISharesFactory {
     function addTokenizedShares(uint256 keeperShares, address[] calldata recipients, uint256[] calldata shares)
         external
         returns (address);
-        
+
     function releaseShares(address[] calldata owners) external;
     function releaseShares(address[] calldata tokenShares, address[] calldata owners) external;
 

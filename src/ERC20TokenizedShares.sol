@@ -135,7 +135,7 @@ abstract contract ERC20TokenizedShares is ITokenizedShares, Clone, ERC20 {
      * @param owners Address to collect shares for.
      * @param balance This contract balance.
      * @param length Amount of owners to collect for.
-     * 
+     *
      * @return released Shares amount released to owners.
      */
     function _releaseOwnersShares(

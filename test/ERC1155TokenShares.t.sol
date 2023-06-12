@@ -30,11 +30,8 @@ contract ERC1155TokenSharesTest is Test {
         shares[1] = 2_000;
         shares[2] = 1_000;
 
-        ERC1155TokenSharesMock.Data memory data = ERC1155TokenSharesMock.Data({
-            name: "NAME",
-            symbol: "SYMBOL",
-            uri: "URI"
-        });
+        ERC1155TokenSharesMock.Data memory data =
+            ERC1155TokenSharesMock.Data({name: "NAME", symbol: "SYMBOL", uri: "URI"});
         bytes memory encodedData = abi.encode(data);
 
         tokenizedShares = factory.addTokenizedShares(recipients, shares, encodedData);

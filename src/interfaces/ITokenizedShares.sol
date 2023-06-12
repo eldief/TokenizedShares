@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 /**
  * @title ITokenizedShares.
- * @author @eldief. 
+ * @author @eldief.
  * @notice Base interface that has to inherited by `TokenizedShares` specialized contracts.
  */
 interface ITokenizedShares {
