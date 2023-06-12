@@ -15,6 +15,39 @@ contract ERC1155TokenSharesTest is Test {
         factory = new SharesFactory(address(new ERC1155TokenSharesMock()));
     }
 
+    function testERC1155CustomData() public {
+        address tokenizedShares;
+        uint256[] memory shares;
+        address[] memory recipients;
+
+        recipients = new address[](3);
+        recipients[0] = makeAddr("recipient_0");
+        recipients[1] = makeAddr("recipient_1");
+        recipients[2] = makeAddr("recipient_2");
+
+        shares = new uint256[](3);
+        shares[0] = 7_000;
+        shares[1] = 2_000;
+        shares[2] = 1_000;
+
+        ERC1155TokenSharesMock.Data memory data = ERC1155TokenSharesMock.Data({
+            name: "NAME",
+            symbol: "SYMBOL",
+            uri: "URI"
+        });
+        bytes memory encodedData = abi.encode(data);
+
+        tokenizedShares = factory.addTokenizedShares(recipients, shares, encodedData);
+        bytes memory customData = ITokenizedShares(tokenizedShares).customData();
+        assertEq(encodedData.length, customData.length);
+        assertEq(encodedData, customData);
+
+        ERC1155TokenSharesMock.Data memory decodedData = abi.decode(customData, (ERC1155TokenSharesMock.Data));
+        assertEq(decodedData.name, data.name);
+        assertEq(decodedData.symbol, data.symbol);
+        assertEq(decodedData.uri, data.uri);
+    }
+
     function testERC1155AddTokenizedShares() public {
         address tokenizedShares;
         address[] memory recipients;

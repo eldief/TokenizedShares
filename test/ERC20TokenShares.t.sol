@@ -41,6 +41,37 @@ contract ERC20TokenSharesTest is Test {
         assertEq(ERC20(tokenizedShares).decimals(), 18);
     }
 
+    function testERC20CustomData() public {
+        address tokenizedShares;
+        uint256[] memory shares;
+        address[] memory recipients;
+
+        recipients = new address[](3);
+        recipients[0] = makeAddr("recipient_0");
+        recipients[1] = makeAddr("recipient_1");
+        recipients[2] = makeAddr("recipient_2");
+
+        shares = new uint256[](3);
+        shares[0] = 7_000;
+        shares[1] = 2_000;
+        shares[2] = 1_000;
+
+        ERC20TokenSharesMock.Data memory data = ERC20TokenSharesMock.Data({
+            name: "NAME",
+            symbol: "SYMBOL"
+        });
+        bytes memory encodedData = abi.encode(data);
+
+        tokenizedShares = factory.addTokenizedShares(recipients, shares, encodedData);
+        bytes memory customData = ITokenizedShares(tokenizedShares).customData();
+        assertEq(encodedData.length, customData.length);
+        assertEq(encodedData, customData);
+
+        ERC20TokenSharesMock.Data memory decodedData = abi.decode(customData, (ERC20TokenSharesMock.Data));
+        assertEq(decodedData.name, data.name);
+        assertEq(decodedData.symbol, data.symbol);
+    }
+
     function testERC20AddTokenizedShares() public {
         address tokenizedShares;
         address[] memory recipients;

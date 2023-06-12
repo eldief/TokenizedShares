@@ -48,10 +48,27 @@ contract SharesFactory is ISharesFactory {
      *
      * @param recipients Mint recipients.
      * @param shares Recipients shares amount.
+     * 
      * @return tokenizedShares Cloned `ITokenizedShares` address.
      */
     function addTokenizedShares(address[] calldata recipients, uint256[] calldata shares) external returns (address) {
-        return _addTokenizedShares(0, recipients, shares);
+        return _addTokenizedShares(0, recipients, shares, _emptyCalldata());
+    }
+
+    /**
+     * @notice Clone new `ITokenizedShares` contract setting no keeper fees.
+     *         Mint `ITokenizedShares` tokens to `recipients`.
+     *         Both ERC20 and ERC1155 versions of `ITokenizedShares` are supported.
+     * @dev Sum of `shares` must be exactly `10_000`.
+     *
+     * @param recipients Mint recipients.
+     * @param shares Recipients shares amount.
+     * @param customData User defined encoded data.
+     * 
+     * @return tokenizedShares Cloned `ITokenizedShares` address.
+     */
+    function addTokenizedShares(address[] calldata recipients, uint256[] calldata shares, bytes calldata customData) external returns (address) {
+        return _addTokenizedShares(0, recipients, shares, customData);
     }
 
     /**
@@ -62,6 +79,7 @@ contract SharesFactory is ISharesFactory {
      * @param keeperShares Shares reserved for keeper.
      * @param recipients Mint recipients.
      * @param shares Recipients shares amount.
+     * 
      * @return tokenizedShares Cloned `ITokenizedShares` address.
      */
     function addTokenizedShares(uint256 keeperShares, address[] calldata recipients, uint256[] calldata shares)
@@ -69,7 +87,27 @@ contract SharesFactory is ISharesFactory {
         returns (address)
     {
         if (keeperShares > MAX_KEEPER_SHARES) revert ISharesFactory__InvalidKeeperShares();
-        return _addTokenizedShares(keeperShares, recipients, shares);
+        return _addTokenizedShares(keeperShares, recipients, shares, _emptyCalldata());
+    }
+
+    /**
+     * @notice Clone and initialize new `ITokenizedShares` contract setting keeper fees.
+     * @dev Maximum value for `keeperShares` is `MAX_KEEPER_SHARES`.
+     *      Sum of `keeperShares` and `shares` must be exactly `ITokenizedShares.TOTAL_SHARES`.
+     *
+     * @param keeperShares Shares reserved for keeper.
+     * @param recipients Mint recipients.
+     * @param shares Recipients shares amount.
+     * @param customData User defined encoded data.
+     * 
+     * @return tokenizedShares Cloned `ITokenizedShares` address.
+     */
+    function addTokenizedShares(uint256 keeperShares, address[] calldata recipients, uint256[] calldata shares, bytes calldata customData)
+        external
+        returns (address)
+    {
+        if (keeperShares > MAX_KEEPER_SHARES) revert ISharesFactory__InvalidKeeperShares();
+        return _addTokenizedShares(keeperShares, recipients, shares, customData);
     }
 
     /**
@@ -106,12 +144,15 @@ contract SharesFactory is ISharesFactory {
      * @param keeperShares Shares reserved for keeper.
      * @param recipients Mint recipients.
      * @param shares Recipients shares amount.
+     * @param customData User defined encoded data to be stored in bytecode.
+     * 
+     * @return tokenizedShares Cloned `ITokenizedShares` address.
      */
-    function _addTokenizedShares(uint256 keeperShares, address[] calldata recipients, uint256[] calldata shares)
+    function _addTokenizedShares(uint256 keeperShares, address[] calldata recipients, uint256[] calldata shares, bytes calldata customData)
         internal
         returns (address tokenizedShares)
     {
-        tokenizedShares = LibClone.clone(implementation, abi.encodePacked(address(this), keeperShares));
+        tokenizedShares = LibClone.clone(implementation, abi.encode(address(this), keeperShares, customData));
         SharesFactoryStorage.layout().tokenizedShares.push(tokenizedShares);
 
         ITokenizedShares(tokenizedShares).factoryMintShares(recipients, shares);
@@ -134,6 +175,18 @@ contract SharesFactory is ISharesFactory {
 
                 ++i;
             } while (i < length);
+        }
+    }
+
+    /**
+     * @notice Internal helper to to return an empty bytes calldata.
+     *         See: https://github.com/Vectorized/solady/blob/6d706e05ef43cbed234c648f83c55f3a4bb0a520/src/utils/ERC1967Factory.sol#L433.
+     * 
+     * @return data Empty calldata.
+     */
+    function _emptyCalldata() internal pure returns (bytes calldata data) {
+        assembly {
+            data.length := 0
         }
     }
 }
