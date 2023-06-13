@@ -26,14 +26,14 @@ contract SharesFactory is ISharesFactory {
     /**
      * @notice Immutable `ITokenizedShares` implementation address.
      */
-    address public immutable implementation;
+    address public immutable defaultImplementation;
 
     //--------------------------------------//
     //          CONSTRUCTOR                 //
     //--------------------------------------//
 
-    constructor(address implementation_) {
-        implementation = implementation_;
+    constructor(address defaultImplementation_) {
+        defaultImplementation = defaultImplementation_;
     }
 
     //--------------------------------------//
@@ -52,7 +52,26 @@ contract SharesFactory is ISharesFactory {
      * @return tokenizedShares Cloned `ITokenizedShares` address.
      */
     function addTokenizedShares(address[] calldata recipients, uint256[] calldata shares) external returns (address) {
-        return _addTokenizedShares(0, recipients, shares, _emptyCalldata());
+        return _addTokenizedShares(defaultImplementation, 0, recipients, shares, _emptyCalldata());
+    }
+
+    /**
+     * @notice Clone new `ITokenizedShares` contract setting no keeper fees.
+     *         Mint `ITokenizedShares` tokens to `recipients`.
+     *         Both ERC20 and ERC1155 versions of `ITokenizedShares` are supported.
+     * @dev Sum of `shares` must be exactly `10_000`.
+     *
+     * @param implementation Custom `ITokenizedShares` implementation.
+     * @param recipients Mint recipients.
+     * @param shares Recipients shares amount.
+     *
+     * @return tokenizedShares Cloned `ITokenizedShares` address.
+     */
+    function addTokenizedShares(address implementation, address[] calldata recipients, uint256[] calldata shares)
+        external
+        returns (address)
+    {
+        return _addTokenizedShares(implementation, 0, recipients, shares, _emptyCalldata());
     }
 
     /**
@@ -71,7 +90,29 @@ contract SharesFactory is ISharesFactory {
         external
         returns (address)
     {
-        return _addTokenizedShares(0, recipients, shares, customData);
+        return _addTokenizedShares(defaultImplementation, 0, recipients, shares, customData);
+    }
+
+    /**
+     * @notice Clone new `ITokenizedShares` contract setting no keeper fees.
+     *         Mint `ITokenizedShares` tokens to `recipients`.
+     *         Both ERC20 and ERC1155 versions of `ITokenizedShares` are supported.
+     * @dev Sum of `shares` must be exactly `10_000`.
+     *
+     * @param implementation Custom `ITokenizedShares` implementation.
+     * @param recipients Mint recipients.
+     * @param shares Recipients shares amount.
+     * @param customData User defined encoded data.
+     *
+     * @return tokenizedShares Cloned `ITokenizedShares` address.
+     */
+    function addTokenizedShares(
+        address implementation,
+        address[] calldata recipients,
+        uint256[] calldata shares,
+        bytes calldata customData
+    ) external returns (address) {
+        return _addTokenizedShares(implementation, 0, recipients, shares, customData);
     }
 
     /**
@@ -90,7 +131,29 @@ contract SharesFactory is ISharesFactory {
         returns (address)
     {
         if (keeperShares > MAX_KEEPER_SHARES) revert ISharesFactory__InvalidKeeperShares();
-        return _addTokenizedShares(keeperShares, recipients, shares, _emptyCalldata());
+        return _addTokenizedShares(defaultImplementation, keeperShares, recipients, shares, _emptyCalldata());
+    }
+
+    /**
+     * @notice Clone and initialize new `ITokenizedShares` contract setting keeper fees.
+     * @dev Maximum value for `keeperShares` is `MAX_KEEPER_SHARES`.
+     *      Sum of `keeperShares` and `shares` must be exactly `ITokenizedShares.TOTAL_SHARES`.
+     *
+     * @param implementation Custom `ITokenizedShares` implementation.
+     * @param keeperShares Shares reserved for keeper.
+     * @param recipients Mint recipients.
+     * @param shares Recipients shares amount.
+     *
+     * @return tokenizedShares Cloned `ITokenizedShares` address.
+     */
+    function addTokenizedShares(
+        address implementation,
+        uint256 keeperShares,
+        address[] calldata recipients,
+        uint256[] calldata shares
+    ) external returns (address) {
+        if (keeperShares > MAX_KEEPER_SHARES) revert ISharesFactory__InvalidKeeperShares();
+        return _addTokenizedShares(implementation, keeperShares, recipients, shares, _emptyCalldata());
     }
 
     /**
@@ -112,7 +175,31 @@ contract SharesFactory is ISharesFactory {
         bytes calldata customData
     ) external returns (address) {
         if (keeperShares > MAX_KEEPER_SHARES) revert ISharesFactory__InvalidKeeperShares();
-        return _addTokenizedShares(keeperShares, recipients, shares, customData);
+        return _addTokenizedShares(defaultImplementation, keeperShares, recipients, shares, customData);
+    }
+
+    /**
+     * @notice Clone and initialize new `ITokenizedShares` contract setting keeper fees.
+     * @dev Maximum value for `keeperShares` is `MAX_KEEPER_SHARES`.
+     *      Sum of `keeperShares` and `shares` must be exactly `ITokenizedShares.TOTAL_SHARES`.
+     *
+     * @param implementation Custom `ITokenizedShares` implementation.
+     * @param keeperShares Shares reserved for keeper.
+     * @param recipients Mint recipients.
+     * @param shares Recipients shares amount.
+     * @param customData User defined encoded data.
+     *
+     * @return tokenizedShares Cloned `ITokenizedShares` address.
+     */
+    function addTokenizedShares(
+        address implementation,
+        uint256 keeperShares,
+        address[] calldata recipients,
+        uint256[] calldata shares,
+        bytes calldata customData
+    ) external returns (address) {
+        if (keeperShares > MAX_KEEPER_SHARES) revert ISharesFactory__InvalidKeeperShares();
+        return _addTokenizedShares(implementation, keeperShares, recipients, shares, customData);
     }
 
     /**
@@ -154,11 +241,14 @@ contract SharesFactory is ISharesFactory {
      * @return tokenizedShares Cloned `ITokenizedShares` address.
      */
     function _addTokenizedShares(
+        address implementation,
         uint256 keeperShares,
         address[] calldata recipients,
         uint256[] calldata shares,
         bytes calldata customData
     ) internal returns (address tokenizedShares) {
+        ITokenizedShares(implementation);
+
         tokenizedShares = LibClone.clone(implementation, abi.encode(address(this), keeperShares, customData));
         SharesFactoryStorage.layout().tokenizedShares.push(tokenizedShares);
 

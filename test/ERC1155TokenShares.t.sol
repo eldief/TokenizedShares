@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "../src/SharesFactory.sol";
-import "../src/mocks/ERC1155TokenSharesMock.sol";
+import "../src/examples/ERC1155TokenSharesMock.sol";
 
 contract ERC1155TokenSharesTest is Test {
     event ReceiveETH(uint256);
@@ -121,6 +121,44 @@ contract ERC1155TokenSharesTest is Test {
         emit NewTokenizedShares(address(0));
 
         tokenizedShares = factory.addTokenizedShares(keeperShares, recipients, shares);
+
+        assertEq(ITokenizedShares(tokenizedShares).factory(), address(factory));
+        assertEq(ITokenizedShares(tokenizedShares).keeperShares(), keeperShares);
+        assertEq(ERC1155(tokenizedShares).balanceOf(recipients[0], 0), shares[0]);
+        assertEq(ERC1155(tokenizedShares).balanceOf(recipients[1], 0), shares[1]);
+        assertEq(ERC1155(tokenizedShares).balanceOf(recipients[2], 0), shares[2]);
+    }
+
+    function testERC1155AddTokenizedSharesWithKeeperSharesWithCustomImplementation() public {
+        address customImplementation;
+        address tokenizedShares;
+        uint256 keeperShares;
+        address[] memory recipients;
+        uint256[] memory shares;
+
+        recipients = new address[](3);
+        recipients[0] = makeAddr("recipient_0");
+        recipients[1] = makeAddr("recipient_1");
+        recipients[2] = makeAddr("recipient_2");
+
+        // Revert ITokenizedShares__InvalidSharesAmount
+        keeperShares = 110;
+        shares = new uint256[](3);
+        shares[0] = 6_889;
+        shares[1] = 2_000;
+        shares[2] = 1_000;
+
+        vm.expectRevert(ITokenizedShares.ITokenizedShares__InvalidSharesAmount.selector);
+        tokenizedShares = factory.addTokenizedShares(keeperShares, recipients, shares);
+
+        // Success
+        customImplementation = address(new ERC1155TokenSharesMock());
+        keeperShares = 111;
+
+        vm.expectEmit(false, false, false, false);
+        emit NewTokenizedShares(address(0));
+
+        tokenizedShares = factory.addTokenizedShares(customImplementation, keeperShares, recipients, shares);
 
         assertEq(ITokenizedShares(tokenizedShares).factory(), address(factory));
         assertEq(ITokenizedShares(tokenizedShares).keeperShares(), keeperShares);
@@ -361,6 +399,36 @@ contract ERC1155TokenSharesTest is Test {
         shares[2] = shares3;
 
         ERC1155 tokenizedShares = ERC1155(factory.addTokenizedShares(keeperShares, recipients, shares));
+
+        assertEq(tokenizedShares.balanceOf(recipients[0], 0), shares[0]);
+        assertEq(tokenizedShares.balanceOf(recipients[1], 0), shares[1]);
+        assertEq(tokenizedShares.balanceOf(recipients[2], 0), shares[2]);
+    }
+
+    function testERC1155FuzzAddTokenizedSharesWithKeeperSharesWithCustomImplementation(
+        uint256 keeperShares,
+        uint256 shares1,
+        uint256 shares2
+    ) public {
+        vm.assume(keeperShares > 0 && keeperShares <= 1_000);
+        vm.assume(shares1 > 0 && shares1 < 10_000);
+        vm.assume(shares2 > 0 && shares2 < 10_000);
+        vm.assume(shares1 + shares2 + keeperShares < 10_000);
+
+        uint256 shares3 = 10_000 - shares1 - shares2 - keeperShares;
+        address[] memory recipients = new address[](3);
+        recipients[0] = makeAddr("recipient_0");
+        recipients[1] = makeAddr("recipient_1");
+        recipients[2] = makeAddr("recipient_2");
+
+        uint256[] memory shares = new uint256[](3);
+        shares[0] = shares1;
+        shares[1] = shares2;
+        shares[2] = shares3;
+
+        address customImplementation = address(new ERC1155TokenSharesMock());
+        ERC1155 tokenizedShares =
+            ERC1155(factory.addTokenizedShares(customImplementation, keeperShares, recipients, shares));
 
         assertEq(tokenizedShares.balanceOf(recipients[0], 0), shares[0]);
         assertEq(tokenizedShares.balanceOf(recipients[1], 0), shares[1]);

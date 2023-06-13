@@ -4,12 +4,12 @@ pragma solidity ^0.8.13;
 import "../ERC1155TokenizedShares.sol";
 
 /**
- * @title ERC1155TokenSharesMock.
+ * @title ERC1155TokenizedSharesMock.
  * @author @eldief
  * @notice Example for ERC1155 implementing Tokenized Shares.
  */
 
-contract ERC1155TokenSharesMock is ERC1155TokenizedShares {
+contract ERC1155TokenizedSharesMock is ERC1155TokenizedShares {
     struct Data {
         string name;
         string symbol;
