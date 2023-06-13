@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "../src/SharesFactory.sol";
-import "../src/examples/ERC20TokenSharesMock.sol";
+import "../src/examples/ERC20TokenizedSharesMock.sol";
 
 contract ERC20TokenSharesTest is Test {
     event ReceiveETH(uint256);
@@ -12,7 +12,7 @@ contract ERC20TokenSharesTest is Test {
     SharesFactory public factory;
 
     function setUp() public {
-        factory = new SharesFactory(address(new ERC20TokenSharesMock()));
+        factory = new SharesFactory(address(new ERC20TokenizedSharesMock()));
     }
 
     function testERC20Decimals() public {
@@ -56,7 +56,7 @@ contract ERC20TokenSharesTest is Test {
         shares[1] = 2_000;
         shares[2] = 1_000;
 
-        ERC20TokenSharesMock.Data memory data = ERC20TokenSharesMock.Data({name: "NAME", symbol: "SYMBOL"});
+        ERC20TokenizedSharesMock.Data memory data = ERC20TokenizedSharesMock.Data({name: "NAME", symbol: "SYMBOL"});
         bytes memory encodedData = abi.encode(data);
 
         tokenizedShares = factory.addTokenizedShares(recipients, shares, encodedData);
@@ -64,7 +64,7 @@ contract ERC20TokenSharesTest is Test {
         assertEq(encodedData.length, customData.length);
         assertEq(encodedData, customData);
 
-        ERC20TokenSharesMock.Data memory decodedData = abi.decode(customData, (ERC20TokenSharesMock.Data));
+        ERC20TokenizedSharesMock.Data memory decodedData = abi.decode(customData, (ERC20TokenizedSharesMock.Data));
         assertEq(decodedData.name, data.name);
         assertEq(decodedData.symbol, data.symbol);
     }
@@ -187,7 +187,7 @@ contract ERC20TokenSharesTest is Test {
         vm.expectEmit(false, false, false, false);
         emit NewTokenizedShares(address(0));
 
-        customImplementation = address(new ERC20TokenSharesMock());
+        customImplementation = address(new ERC20TokenizedSharesMock());
         tokenizedShares = factory.addTokenizedShares(customImplementation, keeperShares, recipients, shares);
 
         uint256 decimals = ERC20(tokenizedShares).decimals();
@@ -475,7 +475,7 @@ contract ERC20TokenSharesTest is Test {
         shares[1] = shares2;
         shares[2] = shares3;
 
-        address customImplementation = address(new ERC20TokenSharesMock());
+        address customImplementation = address(new ERC20TokenizedSharesMock());
         address tokenizedShares = factory.addTokenizedShares(customImplementation, keeperShares, recipients, shares);
 
         uint256 decimals = ERC20(tokenizedShares).decimals();

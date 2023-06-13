@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "../src/SharesFactory.sol";
-import "../src/examples/ERC1155TokenSharesMock.sol";
+import "../src/examples/ERC1155TokenizedSharesMock.sol";
 
 contract ERC1155TokenSharesTest is Test {
     event ReceiveETH(uint256);
@@ -12,7 +12,7 @@ contract ERC1155TokenSharesTest is Test {
     SharesFactory public factory;
 
     function setUp() public {
-        factory = new SharesFactory(address(new ERC1155TokenSharesMock()));
+        factory = new SharesFactory(address(new ERC1155TokenizedSharesMock()));
     }
 
     function testERC1155CustomData() public {
@@ -30,8 +30,8 @@ contract ERC1155TokenSharesTest is Test {
         shares[1] = 2_000;
         shares[2] = 1_000;
 
-        ERC1155TokenSharesMock.Data memory data =
-            ERC1155TokenSharesMock.Data({name: "NAME", symbol: "SYMBOL", uri: "URI"});
+        ERC1155TokenizedSharesMock.Data memory data =
+            ERC1155TokenizedSharesMock.Data({name: "NAME", symbol: "SYMBOL", uri: "URI"});
         bytes memory encodedData = abi.encode(data);
 
         tokenizedShares = factory.addTokenizedShares(recipients, shares, encodedData);
@@ -39,7 +39,7 @@ contract ERC1155TokenSharesTest is Test {
         assertEq(encodedData.length, customData.length);
         assertEq(encodedData, customData);
 
-        ERC1155TokenSharesMock.Data memory decodedData = abi.decode(customData, (ERC1155TokenSharesMock.Data));
+        ERC1155TokenizedSharesMock.Data memory decodedData = abi.decode(customData, (ERC1155TokenizedSharesMock.Data));
         assertEq(decodedData.name, data.name);
         assertEq(decodedData.symbol, data.symbol);
         assertEq(decodedData.uri, data.uri);
@@ -152,7 +152,7 @@ contract ERC1155TokenSharesTest is Test {
         tokenizedShares = factory.addTokenizedShares(keeperShares, recipients, shares);
 
         // Success
-        customImplementation = address(new ERC1155TokenSharesMock());
+        customImplementation = address(new ERC1155TokenizedSharesMock());
         keeperShares = 111;
 
         vm.expectEmit(false, false, false, false);
@@ -426,7 +426,7 @@ contract ERC1155TokenSharesTest is Test {
         shares[1] = shares2;
         shares[2] = shares3;
 
-        address customImplementation = address(new ERC1155TokenSharesMock());
+        address customImplementation = address(new ERC1155TokenizedSharesMock());
         ERC1155 tokenizedShares =
             ERC1155(factory.addTokenizedShares(customImplementation, keeperShares, recipients, shares));
 

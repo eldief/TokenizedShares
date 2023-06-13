@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "../src/SharesFactory.sol";
-import "../src/examples/ERC1155TokenSharesMock.sol";
+import "../src/examples/ERC1155TokenizedSharesMock.sol";
 
 contract SharesFactoryTest is Test {
     event ReceiveETH(uint256);
@@ -12,7 +12,7 @@ contract SharesFactoryTest is Test {
     SharesFactory public factory;
 
     function setUp() public {
-        factory = new SharesFactory(address(new ERC1155TokenSharesMock()));
+        factory = new SharesFactory(address(new ERC1155TokenizedSharesMock()));
     }
 
     function testAddTokenShares() public {
@@ -101,7 +101,7 @@ contract SharesFactoryTest is Test {
         tokenizedShares = factory.addTokenizedShares(keeperShares, recipients, shares);
 
         // Success
-        customImplementation = address(new ERC1155TokenSharesMock());
+        customImplementation = address(new ERC1155TokenizedSharesMock());
         keeperShares = 111;
 
         vm.expectEmit(false, false, false, false);
@@ -324,7 +324,7 @@ contract SharesFactoryTest is Test {
         shares[1] = shares2;
         shares[2] = shares3;
 
-        address customImplementation = address(new ERC1155TokenSharesMock());
+        address customImplementation = address(new ERC1155TokenizedSharesMock());
         ERC1155 tokenizedShares =
             ERC1155(factory.addTokenizedShares(customImplementation, keeperShares, recipients, shares));
         assertEq(tokenizedShares.balanceOf(recipients[0], 0), shares[0]);
