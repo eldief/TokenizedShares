@@ -1,5 +1,6 @@
 # TokenizedShares
-Clone and mint Tokenized Shares to be set as ETH payment recipients. Each share represent 0.1% (1 bips) of total accrued.
+Clone and mint Tokenized Shares to be set as ETH payment recipients. Each share represent 0.1% (1 bips) of total accrued.  
+Inspired by 0xSplits Liquid Split: https://docs.0xsplits.xyz/templates/liquid
 
 
 
