@@ -159,14 +159,15 @@ abstract contract ERC20TokenizedShares is ITokenizedShares, Clone, ERC20 {
             address owner = owners[i];
             uint256 amount = _releasable(layout, owner);
 
-            if (amount > 0) {
-                released += amount;
-                layout.totalReleased += amount;
-                layout.released[owner] += amount;
-
-                owner.safeTransferETH(amount);
-            }
+            // Cannot realistically overflow.
             unchecked {
+                if (amount > 0) {
+                    released += amount;
+                    layout.totalReleased += amount;
+                    layout.released[owner] += amount;
+
+                    owner.safeTransferETH(amount);
+                }
                 ++i;
             }
         } while (i < length);
@@ -180,12 +181,16 @@ abstract contract ERC20TokenizedShares is ITokenizedShares, Clone, ERC20 {
      */
     function _releaseKeeperShares(TokenizedSharesStorage.Layout storage layout, uint256 released) internal {
         uint256 sharesBalance = keeperShares();
-        if (sharesBalance > 0) {
-            uint256 amount = released * sharesBalance / TOTAL_SHARES;
 
-            if (amount > 0) {
-                layout.totalReleased += amount;
-                tx.origin.safeTransferETH(amount);
+        // Cannot realistically overflow.
+        unchecked {
+            if (sharesBalance > 0) {
+                uint256 amount = released * sharesBalance / TOTAL_SHARES;
+
+                if (amount > 0) {
+                    layout.totalReleased += amount;
+                    tx.origin.safeTransferETH(amount);
+                }
             }
         }
     }
@@ -230,11 +235,16 @@ abstract contract ERC20TokenizedShares is ITokenizedShares, Clone, ERC20 {
         uint256 fromBalance = balanceOf(from);
         TokenizedSharesStorage.Layout storage layout = TokenizedSharesStorage.layout();
 
-        if (fromBalance > amount) {
-            uint256 transferWeightedCollected = amount * layout.released[from] / fromBalance;
+        unchecked {
+            if (fromBalance > amount) {
+                uint256 transferWeightedCollected = amount * layout.released[from] / fromBalance;
 
-            layout.released[from] -= transferWeightedCollected;
-            layout.released[to] += transferWeightedCollected;
+                // Cannot underflow since fromBalance > amount
+                layout.released[from] -= transferWeightedCollected;
+
+                // Cannot realistically overflow
+                layout.released[to] += transferWeightedCollected;
+            }
         }
     }
 }
