@@ -306,6 +306,66 @@ contract ERC1155TokenSharesTest is Test {
         assertEq(recipients[2].balance, amount * shares[2] / 10_000);
     }
 
+    function testERC1155ReleaseSharesWithTransfer() public {
+        // Success
+        uint256 amount = 1 ether;
+
+        address[] memory recipients = new address[](3);
+        recipients[0] = makeAddr("recipient_0");
+        recipients[1] = makeAddr("recipient_1");
+        recipients[2] = makeAddr("recipient_2");
+
+        uint256[] memory shares = new uint256[](3);
+        shares[0] = 7_000;
+        shares[1] = 2_000;
+        shares[2] = 1_000;
+
+        address tokenizedShares = factory.addTokenizedShares(recipients, shares);
+        (bool success,) = payable(tokenizedShares).call{value: amount}("");
+        assertTrue(success);
+
+        // release 7000 shares
+        address[] memory owners = new address[](1);
+        owners[0] = recipients[0];
+        factory.releaseShares(owners);
+        assertEq(owners[0].balance, amount * shares[0] / 10_000);
+        uint256 prevBalance = owners[0].balance;
+
+        // release again 7000 shares for same owner, should not increase balance
+        factory.releaseShares(owners);
+        assertEq(prevBalance, owners[0].balance);
+
+        // transfer 5000/7000 shares to new owner
+        address recipient3 = makeAddr("recipient_3");
+        vm.prank(owners[0], owners[0]);
+        ERC1155(tokenizedShares).safeTransferFrom(owners[0], recipient3, 0, 5_000, "");
+
+        // release 5000 shares to new owner, should not increase balance
+        owners[0] = recipient3;
+        prevBalance = owners[0].balance;
+        factory.releaseShares(owners);
+        assertEq(owners[0].balance, 0);
+
+        // release 2000, 1000 shares
+        owners = new address[](2);
+        owners[0] = recipients[1];
+        owners[1] = recipients[2];
+        factory.releaseShares(owners);
+        assertEq(recipients[1].balance, amount * shares[1] / 10_000);
+        assertEq(recipients[2].balance, amount * shares[2] / 10_000);
+
+        // deposit again
+        (success,) = payable(tokenizedShares).call{value: amount}("");
+        assertTrue(success);
+
+        // release to 5000 shares
+        owners = new address[](1);
+        owners[0] = recipient3;
+        prevBalance = owners[0].balance;
+        factory.releaseShares(owners);
+        assertEq(owners[0].balance, amount * 5_000 / 10_000);
+    }
+
     function testERC1155ReleaseSharesWithKeeperShares() public {
         uint256 amount = 1 ether;
 
@@ -348,6 +408,190 @@ contract ERC1155TokenSharesTest is Test {
         assertEq(recipients[2].balance, amount * shares[2] / 10_000);
         keeperAmount = keeperAmount + (recipients[1].balance + recipients[2].balance) * keeperShares / 10_000;
         assertEq(keeper.balance, keeperAmount);
+    }
+
+    function testERC1155Releasable() public {
+        uint256 amount = 1 ether;
+
+        address[] memory recipients = new address[](3);
+        recipients[0] = makeAddr("recipient_0");
+        recipients[1] = makeAddr("recipient_1");
+        recipients[2] = makeAddr("recipient_2");
+
+        uint256[] memory shares = new uint256[](3);
+        shares[0] = 7_000;
+        shares[1] = 2_000;
+        shares[2] = 1_000;
+
+        // Clone
+        address tokenizedShares = factory.addTokenizedShares(recipients, shares);
+
+        // Deposit
+        (bool success,) = payable(tokenizedShares).call{value: amount}("");
+
+        assertTrue(success);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[0]), amount * shares[0] / 10_000);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[1]), amount * shares[1] / 10_000);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[2]), amount * shares[2] / 10_000);
+
+        // Release
+        factory.releaseShares(recipients);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[0]), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[1]), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[2]), 0);
+
+        // Deposit
+        (success,) = payable(tokenizedShares).call{value: amount}("");
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[0]), amount * shares[0] / 10_000);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[1]), amount * shares[1] / 10_000);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[2]), amount * shares[2] / 10_000);
+
+        // Release
+        factory.releaseShares(recipients);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[0]), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[1]), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[2]), 0);
+    }
+
+    function testERC1155ReleasableWithTransfers() public {
+        uint256 amount = 1 ether;
+
+        address[] memory recipients = new address[](3);
+        recipients[0] = makeAddr("recipient_0");
+        recipients[1] = makeAddr("recipient_1");
+        recipients[2] = makeAddr("recipient_2");
+
+        uint256[] memory shares = new uint256[](3);
+        shares[0] = 7_000;
+        shares[1] = 2_000;
+        shares[2] = 1_000;
+
+        // Clone
+        address tokenizedShares = factory.addTokenizedShares(recipients, shares);
+
+        // Deposit
+        (bool success,) = payable(tokenizedShares).call{value: amount}("");
+        assertTrue(success);
+
+        recipients = new address[](4);
+        recipients[0] = makeAddr("recipient_0");
+        recipients[1] = makeAddr("recipient_1");
+        recipients[2] = makeAddr("recipient_2");
+        recipients[3] = makeAddr("recipient_3");
+
+        // Transfer
+        uint256 transferAmount = 5_000;
+        vm.prank(recipients[0], recipients[0]);
+        ERC1155(tokenizedShares).safeTransferFrom(recipients[0], recipients[3], 0, transferAmount, "");
+
+        assertEq(
+            ITokenizedShares(tokenizedShares).releasable(recipients[0]), amount * (shares[0] - transferAmount) / 10_000
+        );
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[1]), amount * shares[1] / 10_000);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[2]), amount * shares[2] / 10_000);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[3]), amount * transferAmount / 10_000);
+
+        // Release
+        factory.releaseShares(recipients);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[0]), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[1]), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[2]), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[3]), 0);
+
+        // Deposit
+        (success,) = payable(tokenizedShares).call{value: amount}("");
+        assertTrue(success);
+        assertEq(
+            ITokenizedShares(tokenizedShares).releasable(recipients[0]), amount * (shares[0] - transferAmount) / 10_000
+        );
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[1]), amount * shares[1] / 10_000);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[2]), amount * shares[2] / 10_000);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[3]), amount * transferAmount / 10_000);
+
+        // Release
+        factory.releaseShares(recipients);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[0]), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[1]), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[2]), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[3]), 0);
+    }
+
+    function testERC1155ReleasableWithTransfersAfterRelease() public {
+        uint256 amount = 0.001 ether;
+        address[] memory recipients;
+        uint256[] memory shares;
+        bool success;
+
+        address recipient_0 = makeAddr("recipient_0");
+        address recipient_1 = makeAddr("recipient_1");
+        address recipient_2 = makeAddr("recipient_2");
+        address recipient_3 = makeAddr("recipient_3");
+
+        // Distribute shares to 3 recipients
+        recipients = new address[](3);
+        recipients[0] = recipient_0;
+        recipients[1] = recipient_1;
+        recipients[2] = recipient_2;
+
+        shares = new uint256[](3);
+        shares[0] = 7_000;
+        shares[1] = 2_000;
+        shares[2] = 1_000;
+
+        address tokenizedShares = factory.addTokenizedShares(recipients, shares);
+
+        // Start accruing shares: 3 x Deposit 0.001 ether
+        (success,) = payable(tokenizedShares).call{value: amount}("");
+        assertTrue(success);
+        (success,) = payable(tokenizedShares).call{value: amount}("");
+        assertTrue(success);
+        (success,) = payable(tokenizedShares).call{value: amount}("");
+        assertTrue(success);
+
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_0), 0.0007 ether * 3);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_1), 0.0002 ether * 3);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_2), 0.0001 ether * 3);
+
+        // Release shares only on last 2 recipients
+        recipients = new address[](2);
+        recipients[0] = recipient_1;
+        recipients[1] = recipient_2;
+
+        factory.releaseShares(recipients);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_0), 0.0007 ether * 3);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_1), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_2), 0);
+
+        // Transfer 5000 out of 7000 shares from recipient_0 to recipient_3
+        vm.prank(recipient_0, recipient_0);
+        ERC1155(tokenizedShares).safeTransferFrom(recipient_0, recipient_3, 0, 5000, "");
+
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_0), 0.0002 ether * 3);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_1), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_2), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_3), 0.0005 ether * 3);
+
+        // Start accruing shares: 1 x Deposit 0.001 ether
+        (success,) = payable(tokenizedShares).call{value: amount}("");
+        assertTrue(success);
+
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_0), 0.0002 ether * 4);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_1), 0.0002 ether * 1);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_2), 0.0001 ether * 1);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_3), 0.0005 ether * 4);
+
+        // Release shares to all recipients
+        recipients = new address[](4);
+        recipients[0] = recipient_0;
+        recipients[1] = recipient_1;
+        recipients[2] = recipient_2;
+        recipients[3] = recipient_3;
+
+        factory.releaseShares(recipients);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_0), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_1), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_2), 0);
+        assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_3), 0);
     }
 
     //--------------------------------------//

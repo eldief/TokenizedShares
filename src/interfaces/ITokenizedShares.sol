@@ -22,6 +22,7 @@ interface ITokenizedShares {
     //--------------------------------------//
     function factoryMintShares(address[] calldata recipients, uint256[] calldata shares) external;
     function releaseShares(address[] calldata owners) external;
+    function releasable(address owner) external view returns (uint256);
 
     //--------------------------------------//
     //            CONSTANTS                 //

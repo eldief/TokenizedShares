@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+import "forge-std/Test.sol";
 import "./interfaces/ITokenizedShares.sol";
 import "./libraries/TokenizedSharesStorage.sol";
 import "solady/utils/Clone.sol";
@@ -105,14 +106,25 @@ abstract contract ERC1155TokenizedShares is ITokenizedShares, Clone, ERC1155 {
     function releaseShares(address[] calldata owners) external {
         uint256 length = owners.length;
         if (length == 0) revert ITokenizedShares__NoSharesOwners();
-
-        uint256 balance = address(this).balance;
-        if (balance == 0) revert ITokenizedShares__NoBalance();
+        if (address(this).balance == 0) revert ITokenizedShares__NoBalance();
 
         TokenizedSharesStorage.Layout storage layout = TokenizedSharesStorage.layout();
 
-        uint256 released = _releaseOwnersShares(layout, owners, balance, length);
-        _releaseKeeperShares(layout, released);
+        uint256 released = _releaseOwnersShares(layout, owners, length);
+        if (released > 0) {
+            _releaseKeeperShares(layout, released);
+        }
+    }
+
+    /**
+     * @notice Returns releasable amount for `owner`, proportionally on how many `TokenShares` he owns.
+     *
+     * @param owner Account to check releasable amount for.
+     * @return Releasable amount in ETH.
+     */
+    function releasable(address owner) external view returns (uint256) {
+        TokenizedSharesStorage.Layout storage layout = TokenizedSharesStorage.layout();
+        return _releasable(layout, owner);
     }
 
     //--------------------------------------//
@@ -124,7 +136,6 @@ abstract contract ERC1155TokenizedShares is ITokenizedShares, Clone, ERC1155 {
      *
      * @param layout TokenizedShares storage layout.
      * @param owners Address to collect shares for.
-     * @param balance This contract balance.
      * @param length Amount of owners to collect for.
      *
      * @return released Shares amount released to owners.
@@ -132,28 +143,20 @@ abstract contract ERC1155TokenizedShares is ITokenizedShares, Clone, ERC1155 {
     function _releaseOwnersShares(
         TokenizedSharesStorage.Layout storage layout,
         address[] calldata owners,
-        uint256 balance,
         uint256 length
     ) internal returns (uint256 released) {
         uint256 i;
-        uint256 normalizedBalance = balance + layout.totalCollected;
 
         do {
             address owner = owners[i];
-            uint256 sharesBalance = balanceOf(owner, 0);
+            uint256 amount = _releasable(layout, owner);
 
-            if (sharesBalance > 0) {
-                uint256 ownerCollected = layout.collected[owner];
-                uint256 amount = normalizedBalance * sharesBalance / TOTAL_SHARES - ownerCollected;
+            if (amount > 0) {
+                released += amount;
+                layout.totalReleased += amount;
+                layout.released[owner] += amount;
 
-                if (amount > 0) {
-                    layout.totalCollected += amount;
-                    layout.collected[owner] += amount;
-
-                    owner.safeTransferETH(amount);
-
-                    released += amount;
-                }
+                owner.safeTransferETH(amount);
             }
             unchecked {
                 ++i;
@@ -173,9 +176,68 @@ abstract contract ERC1155TokenizedShares is ITokenizedShares, Clone, ERC1155 {
             uint256 amount = released * sharesBalance / TOTAL_SHARES;
 
             if (amount > 0) {
-                layout.totalCollected += amount;
+                layout.totalReleased += amount;
                 tx.origin.safeTransferETH(amount);
             }
+        }
+    }
+
+    /**
+     * @notice Internal helper to compute releasable amount.
+     *
+     * @param owner Account to check releasable amount for.
+     * @return Releasable amount in ETH.
+     */
+    function _releasable(TokenizedSharesStorage.Layout storage layout, address owner) internal view returns (uint256) {
+        uint256 balance = address(this).balance;
+
+        // Cannot realistically overflow.
+        uint256 weightedOwnerBalance;
+        unchecked {
+            weightedOwnerBalance = (balance + layout.totalReleased) * balanceOf(owner, 0);
+        }
+
+        // No shares to be released when owner's balance is zero or no ETH.
+        if (weightedOwnerBalance == 0) {
+            return 0;
+        }
+
+        // Will underflow, so no ETH to be released.
+        uint256 ownerReleased = layout.released[owner];
+        if (ownerReleased * TOTAL_SHARES > weightedOwnerBalance) {
+            return 0;
+        }
+
+        // Cannot underflow.
+        unchecked {
+            return weightedOwnerBalance / TOTAL_SHARES - ownerReleased;
+        }
+    }
+
+    /**
+     * @notice See `ERC1155._useBeforeTokenTransfer`
+     */
+    function _useBeforeTokenTransfer() internal pure override returns (bool) {
+        return true;
+    }
+
+    /**
+     * @notice `ERC1155._beforeTokenTransfer` override.
+     * @dev Transfer `from` collected weighted amount to `to` to prevent collecting twice with same shares.
+     */
+    function _beforeTokenTransfer(address from, address to, uint256[] memory, uint256[] memory amounts, bytes memory)
+        internal
+        override
+    {
+        uint256 transferAmount = amounts[0];
+        uint256 fromBalance = balanceOf(from, 0);
+        TokenizedSharesStorage.Layout storage layout = TokenizedSharesStorage.layout();
+
+        if (fromBalance > transferAmount) {
+            uint256 transferWeightedCollected = transferAmount * layout.released[from] / fromBalance;
+
+            layout.released[from] -= transferWeightedCollected;
+            layout.released[to] += transferWeightedCollected;
         }
     }
 }

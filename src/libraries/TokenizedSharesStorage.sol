@@ -8,8 +8,8 @@ pragma solidity ^0.8.13;
  */
 library TokenizedSharesStorage {
     struct Layout {
-        uint256 totalCollected;
-        mapping(address => uint256) collected;
+        uint256 totalReleased;
+        mapping(address => uint256) released;
     }
 
     bytes32 internal constant STORAGE_SLOT = keccak256("tokenizedshares.libraries.TokenizedSharesStorage");
