@@ -135,6 +135,16 @@ abstract contract ERC20TokenizedShares is ITokenizedShares, Clone, ERC20 {
         return _releasable(layout, owner);
     }
 
+    /**
+     * @notice Returns total ETH released by this contract.
+     *
+     * @return Total ETH released.
+     */
+    function totalReleased() external view returns (uint256) {
+        TokenizedSharesStorage.Layout storage layout = TokenizedSharesStorage.layout();
+        return _totalReleased(layout);
+    }
+
     //--------------------------------------//
     //          INTERNAL FUNCTIONS          //
     //--------------------------------------//
@@ -207,7 +217,7 @@ abstract contract ERC20TokenizedShares is ITokenizedShares, Clone, ERC20 {
         // Cannot realistically overflow.
         uint256 weightedOwnerBalance;
         unchecked {
-            weightedOwnerBalance = (balance + layout.totalReleased) * balanceOf(owner);
+            weightedOwnerBalance = (balance + _totalReleased(layout)) * balanceOf(owner);
         }
 
         // No shares to be released when owner's balance is zero or no ETH.
@@ -225,6 +235,16 @@ abstract contract ERC20TokenizedShares is ITokenizedShares, Clone, ERC20 {
         unchecked {
             return weightedOwnerBalance / TOTAL_SHARES - ownerReleased;
         }
+    }
+
+    /**
+     * @notice Internal helper to return total ETH released by this contract.
+     *
+     * @param layout TokenizedShares storage layout.
+     * @return Total ETH released.
+     */
+    function _totalReleased(TokenizedSharesStorage.Layout storage layout) internal view returns (uint256) {
+        return layout.totalReleased;
     }
 
     /**
