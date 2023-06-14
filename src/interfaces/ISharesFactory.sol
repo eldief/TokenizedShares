@@ -65,8 +65,10 @@ interface ISharesFactory {
     ) external returns (address);
 
     function releaseShares(address[] calldata owners) external;
-
     function releaseShares(address[] calldata tokenShares, address[] calldata owners) external;
+
+    function releasable(address owner) external view returns (uint256);
+    function releasable(address[] calldata tokenShares, address owner) external view returns (uint256);
 
     //--------------------------------------//
     //            CONSTANTS                 //

@@ -254,6 +254,100 @@ contract SharesFactoryTest is Test {
         assertEq(keeper.balance, keeperAmount);
     }
 
+    function testReleasable() public {
+        // Revert ISharesFactory.ISharesFactory__NoTokenShares
+        vm.expectRevert(ISharesFactory.ISharesFactory__NoTokenShares.selector);
+        factory.releaseShares(new address[](1));
+
+        // Success
+        uint256 amount = 1 ether;
+
+        address[] memory recipients = new address[](3);
+        recipients[0] = makeAddr("recipient_0");
+        recipients[1] = makeAddr("recipient_1");
+        recipients[2] = makeAddr("recipient_2");
+
+        uint256[] memory shares = new uint256[](3);
+        shares[0] = 7_000;
+        shares[1] = 2_000;
+        shares[2] = 1_000;
+
+        address tokenizedShares = factory.addTokenizedShares(recipients, shares);
+        (bool success,) = payable(tokenizedShares).call{value: amount}("");
+        assertTrue(success);
+
+        address[] memory owners = new address[](1);
+        owners[0] = recipients[0];
+        assertEq(factory.releasable(recipients[0]), amount * shares[0] / 10_000);
+
+        owners = new address[](2);
+        owners[0] = recipients[1];
+        owners[1] = recipients[2];
+
+        factory.releaseShares(owners);
+        assertEq(recipients[1].balance, amount * shares[1] / 10_000);
+        assertEq(recipients[2].balance, amount * shares[2] / 10_000);
+        assertEq(factory.releasable(recipients[0]), amount * shares[0] / 10_000);
+        assertEq(factory.releasable(recipients[1]), 0);
+        assertEq(factory.releasable(recipients[2]), 0);
+
+        owners = new address[](1);
+        owners[0] = recipients[0];
+        factory.releaseShares(owners);
+        assertEq(factory.releasable(recipients[0]), 0);
+    }
+
+    function testReleaseableWithKeeperShares() public {
+        // Revert ISharesFactory.ISharesFactory__NoTokenShares
+        vm.expectRevert(ISharesFactory.ISharesFactory__NoTokenShares.selector);
+        factory.releaseShares(new address[](1));
+
+        // Success
+        uint256 amount = 1 ether;
+
+        address keeper = makeAddr("keeper");
+        address[] memory recipients = new address[](3);
+        recipients[0] = makeAddr("recipient_0");
+        recipients[1] = makeAddr("recipient_1");
+        recipients[2] = makeAddr("recipient_2");
+
+        uint256 keeperShares = 100;
+        uint256[] memory shares = new uint256[](3);
+        shares[0] = 6_900;
+        shares[1] = 2_000;
+        shares[2] = 1_000;
+
+        address tokenizedShares = factory.addTokenizedShares(keeperShares, recipients, shares);
+        (bool success,) = payable(tokenizedShares).call{value: amount}("");
+        assertTrue(success);
+
+        address[] memory owners = new address[](1);
+        owners[0] = recipients[0];
+        assertEq(factory.releasable(recipients[0]), amount * shares[0] / 10_000);
+
+        owners = new address[](2);
+        owners[0] = recipients[1];
+        owners[1] = recipients[2];
+
+        vm.prank(keeper, keeper);
+        factory.releaseShares(owners);
+        assertEq(keeper.balance, amount * 30 / 10_000);
+        assertEq(recipients[1].balance, amount * shares[1] / 10_000);
+        assertEq(recipients[2].balance, amount * shares[2] / 10_000);
+        assertEq(factory.releasable(recipients[0]), amount * shares[0] / 10_000);
+        assertEq(factory.releasable(recipients[1]), 0);
+        assertEq(factory.releasable(recipients[2]), 0);
+
+        owners = new address[](1);
+        owners[0] = recipients[0];
+
+        vm.prank(keeper, keeper);
+        factory.releaseShares(owners);
+
+        assertEq(keeper.balance, amount * 99 / 10_000);
+        assertEq(factory.releasable(recipients[0]), 0);
+    }
+
     //--------------------------------------//
     //                FUZZ                  //
     //--------------------------------------//

@@ -131,6 +131,7 @@ contract SharesFactory is ISharesFactory {
         returns (address)
     {
         if (keeperShares > MAX_KEEPER_SHARES) revert ISharesFactory__InvalidKeeperShares();
+
         return _addTokenizedShares(defaultImplementation, keeperShares, recipients, shares, _emptyCalldata());
     }
 
@@ -153,6 +154,7 @@ contract SharesFactory is ISharesFactory {
         uint256[] calldata shares
     ) external returns (address) {
         if (keeperShares > MAX_KEEPER_SHARES) revert ISharesFactory__InvalidKeeperShares();
+
         return _addTokenizedShares(implementation, keeperShares, recipients, shares, _emptyCalldata());
     }
 
@@ -175,6 +177,7 @@ contract SharesFactory is ISharesFactory {
         bytes calldata customData
     ) external returns (address) {
         if (keeperShares > MAX_KEEPER_SHARES) revert ISharesFactory__InvalidKeeperShares();
+
         return _addTokenizedShares(defaultImplementation, keeperShares, recipients, shares, customData);
     }
 
@@ -199,6 +202,7 @@ contract SharesFactory is ISharesFactory {
         bytes calldata customData
     ) external returns (address) {
         if (keeperShares > MAX_KEEPER_SHARES) revert ISharesFactory__InvalidKeeperShares();
+
         return _addTokenizedShares(implementation, keeperShares, recipients, shares, customData);
     }
 
@@ -226,6 +230,31 @@ contract SharesFactory is ISharesFactory {
         _releaseShares(tokenizedShares, owners);
     }
 
+    /**
+     * @notice Returns `owner` releasable amount for all `ITokenizedShares`.
+     *
+     * @param owner Account to check releasable amount for.
+     * @return Releasable amount in ETH.
+     */
+    function releasable(address owner) external view returns (uint256) {
+        address[] memory tokenizedShares = SharesFactoryStorage.layout().tokenizedShares;
+        if (tokenizedShares.length == 0) revert ISharesFactory__NoTokenShares();
+
+        return _releasable(tokenizedShares, owner);
+    }
+
+    /**
+     * @notice Returns `owner` releasable amount accrued by `tokenizedShares`.
+     *
+     * @param owner Account to check releasable amount for.
+     * @return Releasable amount in ETH.
+     */
+    function releasable(address[] calldata tokenizedShares, address owner) external view returns (uint256) {
+        if (tokenizedShares.length == 0) revert ISharesFactory__NoTokenShares();
+
+        return _releasable(tokenizedShares, owner);
+    }
+
     //--------------------------------------//
     //          INTERNAL FUNCTIONS          //
     //--------------------------------------//
@@ -247,6 +276,7 @@ contract SharesFactory is ISharesFactory {
         uint256[] calldata shares,
         bytes calldata customData
     ) internal returns (address tokenizedShares) {
+        // Validate ITokenizedShares implementation.
         ITokenizedShares(implementation);
 
         tokenizedShares = LibClone.clone(implementation, abi.encode(address(this), keeperShares, customData));
@@ -269,6 +299,25 @@ contract SharesFactory is ISharesFactory {
         unchecked {
             do {
                 ITokenizedShares(tokenizedShares[i]).releaseShares(owners);
+
+                ++i;
+            } while (i < length);
+        }
+    }
+
+    /**
+     * @notice Internal helper to compute `tokenizedShares` releasable amount for `owner`.
+     *
+     * @param tokenizedShares `ITokenizedShares` contract addresses.
+     * @param owner Shares owner to release ETH to.
+     */
+    function _releasable(address[] memory tokenizedShares, address owner) internal view returns (uint256 amount) {
+        uint256 i;
+        uint256 length = tokenizedShares.length;
+
+        unchecked {
+            do {
+                amount += ITokenizedShares(tokenizedShares[i]).releasable(owner);
 
                 ++i;
             } while (i < length);
