@@ -21,54 +21,22 @@ interface ISharesFactory {
     //--------------------------------------//
     //            FUNCTIONS                 //
     //--------------------------------------//
+    // forgefmt: disable-start
     function addTokenizedShares(address[] calldata recipients, uint256[] calldata shares) external returns (address);
-
-    function addTokenizedShares(address implementation, address[] calldata recipients, uint256[] calldata shares)
-        external
-        returns (address);
-
-    function addTokenizedShares(address[] calldata recipients, uint256[] calldata shares, bytes calldata customData)
-        external
-        returns (address);
-
-    function addTokenizedShares(
-        address implementation,
-        address[] calldata recipients,
-        uint256[] calldata shares,
-        bytes calldata customData
-    ) external returns (address);
-
-    function addTokenizedShares(uint256 keeperShares, address[] calldata recipients, uint256[] calldata shares)
-        external
-        returns (address);
-
-    function addTokenizedShares(
-        address implementation,
-        uint256 keeperShares,
-        address[] calldata recipients,
-        uint256[] calldata shares
-    ) external returns (address);
-
-    function addTokenizedShares(
-        uint256 keeperShares,
-        address[] calldata recipients,
-        uint256[] calldata shares,
-        bytes calldata customData
-    ) external returns (address);
-
-    function addTokenizedShares(
-        address implementation,
-        uint256 keeperShares,
-        address[] calldata recipients,
-        uint256[] calldata shares,
-        bytes calldata customData
-    ) external returns (address);
+    function addTokenizedShares(address implementation, address[] calldata recipients, uint256[] calldata shares) external returns (address);
+    function addTokenizedShares(address[] calldata recipients, uint256[] calldata shares, bytes calldata customData) external returns (address);
+    function addTokenizedShares(address implementation, address[] calldata recipients, uint256[] calldata shares, bytes calldata customData) external returns (address);
+    function addTokenizedShares(uint256 keeperShares, address[] calldata recipients, uint256[] calldata shares) external returns (address);
+    function addTokenizedShares(address implementation, uint256 keeperShares, address[] calldata recipients, uint256[] calldata shares) external returns (address);
+    function addTokenizedShares(uint256 keeperShares, address[] calldata recipients, uint256[] calldata shares, bytes calldata customData) external returns (address);
+    function addTokenizedShares(address implementation, uint256 keeperShares, address[] calldata recipients, uint256[] calldata shares, bytes calldata customData) external returns (address);
 
     function releaseShares(address[] calldata owners) external;
     function releaseShares(address[] calldata tokenShares, address[] calldata owners) external;
 
     function releasable(address owner) external view returns (uint256);
     function releasable(address[] calldata tokenShares, address owner) external view returns (uint256);
+    // forgefmt: disable-end
 
     //--------------------------------------//
     //            CONSTANTS                 //
