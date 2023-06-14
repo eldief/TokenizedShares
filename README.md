@@ -14,11 +14,14 @@ TokenizedShares as tradeable royalties rights:
 
 Unlock maximum composability for your protocol setting your custom `ITokenizedShares` as royalties recipient.  
 Royalites can be accrued on proxied `ITokenizedShares` and later proportionally released to shares `owners` by anyone.  
+
 A `keeperShares` fee can be set during proxy creation to involve keepers in share releasing when profitable.
 
-Granularity can be custom defined on protocol implementation, you can decided if `ITokenizedShares` is for accruing royalties for whole collection or for a single token. Both examples can be found [here](https://github.com/eldief/TokenizedShares/tree/main/src/examples). 
+Granularity can be custom defined on protocol implementation, you can decide if `ITokenizedShares` is for accruing royalties for a whole collection, multiple collections or for a single token.  
+Examples can be found [here](https://github.com/eldief/TokenizedShares/tree/main/src/examples). 
 
 Being ERC1155 or ERC20 tokens, TokenizedShares can be traded freely on the open market allowing for more building blocks to be developed on.  
+
 Buying a TokenizedShare of a collection would allow it's owner to bet on a collection volume, removing floor price from the equation.
 
 
@@ -26,7 +29,9 @@ Buying a TokenizedShare of a collection would allow it's owner to bet on a colle
 ## Contracts
 
 ### SharesFactory 
-  Tokenized Shares Factory [contract](https://github.com/eldief/TokenizedShares/blob/main/src/SharesFactory.sol). Contains two functions: 
+  Tokenized Shares Factory [contract](https://github.com/eldief/TokenizedShares/blob/main/src/SharesFactory.sol).  
+  
+  Functions: 
 
   `addTokenizedShares`: Create a new proxy to `ITokenizedShares` and mint shares to recipients.
   - `recipients`: Address array to mint Shares to.
@@ -62,12 +67,27 @@ Buying a TokenizedShare of a collection would allow it's owner to bet on a colle
     - Optional.
     - Default: All `ITokenizedShares` created by `SharesFactory`.
 
+  `releasable`: Returns ETH accrued by `ITokenizedShares` for `owner`.
+  - `owner`: Address of shares owner to release ETH to.
+    - Required.
+
+  - `tokenizedShares`: Address array of `ITokenizedShares` proxies.
+    - Optional.
+    - Default: All `ITokenizedShares` created by `SharesFactory`.
+
 
 ### ITokenizedShares 
-  [Interface](https://github.com/eldief/TokenizedShares/blob/main/src/interfaces/ITokenizedShares.sol) that defines TokenizedShares implementation, contains 2 main functions:  
-  - `factoryMintShares`: Mint new shares. 
+  [Interface](https://github.com/eldief/TokenizedShares/blob/main/src/interfaces/ITokenizedShares.sol) that defines TokenizedShares implementation.  
+  
+  Functions:
+  
+  `factoryMintShares`: Mint new shares. 
  
-  - `releaseShares`: Release ETH to `owners`, proportionally on how many `TokenShares` they own.  
+  `releaseShares`: Release ETH to `owners`, proportionally on how many `TokenShares` they own.  
+  
+  `releasable`: Returns ETH accrued by `ITokenizedShares` for `owner`.  
+  
+  `totalReleased`: Returns total amount of ETH released by `ITokenizedShares` contract for owners and keepers.  
 
 
 ### ERC20TokenizedShares
