@@ -5,7 +5,6 @@ import "./interfaces/ISharesFactory.sol";
 import "./interfaces/ITokenizedShares.sol";
 import "./libraries/SharesFactoryStorage.sol";
 import "solady/utils/LibClone.sol";
-import "solady/tokens/ERC1155.sol";
 
 /**
  * @title SharesFactory.
