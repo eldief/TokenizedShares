@@ -99,7 +99,7 @@
 
 
 ## DefaultTokenizedShares
-  Default ERC1155 [contract]([https://github.com/eldief/TokenizedShares/blob/main/src/ERC1155TokenizedShares.sol](https://github.com/eldief/TokenizedShares/blob/main/src/DefaultTokenizedShares.sol)) `ITokenizedShares` implementation. This contract will be proxied if no `implementation` is set during `addTokenizedShares`.  
+  Default ERC1155 [contract](https://github.com/eldief/TokenizedShares/blob/main/src/DefaultTokenizedShares.sol) `ITokenizedShares` implementation. This contract will be proxied if no `implementation` is set during `addTokenizedShares`.  
   
   Comes with a pretty on-chain dynamic svg displaying proxy address and total ETH released by it! 
 
