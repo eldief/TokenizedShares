@@ -40,7 +40,7 @@ contract DefaultTokenizedShares is ERC1155TokenizedShares {
     //--------------------------------------//
 
     function name() public view returns (string memory) {
-        return string(abi.encodePacked("Tokenized Shares", bytes(address(this).toHexStringChecksumed())));
+        return string(abi.encodePacked("Tokenized Shares ", bytes(address(this).toHexStringChecksumed())));
     }
 
     function symbol() public pure returns (string memory) {
