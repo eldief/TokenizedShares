@@ -94,7 +94,7 @@ abstract contract ERC1155TokenizedShares is ITokenizedShares, Clone, ERC1155 {
      *
      * @param owners Shares owners to release ETH to.
      */
-    function releaseShares(address[] calldata owners) public virtual {
+    function releaseShares(address[] calldata owners) external {
         uint256 length = owners.length;
         if (length == 0) revert ITokenizedShares__NoSharesOwners();
         if (address(this).balance == 0) revert ITokenizedShares__NoBalance();

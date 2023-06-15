@@ -17,15 +17,6 @@ contract DefaultTokenizedShares is ERC1155TokenizedShares {
     using DynamicBufferLib for DynamicBufferLib.DynamicBuffer;
 
     //--------------------------------------//
-    //               EVENTS                 //
-    //--------------------------------------//
-
-    /**
-     * @notice ERC-4906 MetadataUpdate event.
-     */
-    event MetadataUpdate(uint256 _tokenId);
-
-    //--------------------------------------//
     //    STORAGE - CONSTANTS/IMMUTABLES    //
     //--------------------------------------//
 
@@ -48,25 +39,12 @@ contract DefaultTokenizedShares is ERC1155TokenizedShares {
     //               GETTERS                //
     //--------------------------------------//
 
-    function name() public pure returns (string memory) {
-        return "Tokenized Shares";
+    function name() public view returns (string memory) {
+        return string(abi.encodePacked("Tokenized Shares", bytes(address(this).toHexStringChecksumed())));
     }
 
     function symbol() public pure returns (string memory) {
         return "TOKS";
-    }
-
-    //--------------------------------------//
-    //              OVERRIDES               //
-    //--------------------------------------//
-
-    /**
-     * @notice Overrides `ERC1155TokenizedShares.releaseShares`
-     * @dev Add EIP-4906 MetadataUpdate event.
-     */
-    function releaseShares(address[] calldata owners) public override {
-        super.releaseShares(owners);
-        emit MetadataUpdate(0);
     }
 
     //--------------------------------------//
@@ -81,7 +59,7 @@ contract DefaultTokenizedShares is ERC1155TokenizedShares {
 
         DynamicBufferLib.DynamicBuffer memory jsonBuffer;
         jsonBuffer.append('{"name":"', bytes(name()), '",');
-        jsonBuffer.append('"description":"', bytes(name()), " Id: ", strAddress, '",');
+        jsonBuffer.append('"description":"Tokenized Shares Id:', strAddress, '",');
         jsonBuffer.append('"attributes":', buildAttributes(strTotalReleased, strAddress), ",");
         jsonBuffer.append('"image":"data:image/svg+xml;base64,', buildImage(strTotalReleased, strAddress), '"}');
 
@@ -90,6 +68,7 @@ contract DefaultTokenizedShares is ERC1155TokenizedShares {
 
     function buildStrTotalReleased(TokenizedSharesStorage.Layout storage layout) internal view returns (bytes memory) {
         uint256 released = _totalReleased(layout);
+
         uint256 integer = released / 1e18;
         uint256 decimal = (released - integer * 1e18);
 
