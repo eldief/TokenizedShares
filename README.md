@@ -7,9 +7,9 @@
 
 # Addresses
   Goerli:
-  - SharesFactory: [0xEdfe971b70Ebe665A60099e4d4fbd25140c29800](https://goerli.etherscan.io/address/0xEdfe971b70Ebe665A60099e4d4fbd25140c29800)
-  - DefaultTokenizedShares: [0xb1296aa3599307cced1494c5fbacbb9d5e3241d5](https://goerli.etherscan.io/address/0xb1296aa3599307cced1494c5fbacbb9d5e3241d5)
-  - OpenSea Testnet: https://testnets.opensea.io/assets/goerli/0xc91efbc6e7239410afd5c5dc767adde02ff8af1b/0
+  - SharesFactory: [0xEdfe971b70Ebe665A60099e4d4fbd25140c29800](https://goerli.etherscan.io/address/0x7be13850c4c37d55166388ed0db2754c54eb52af)
+  - DefaultTokenizedShares: [0xb1296aa3599307cced1494c5fbacbb9d5e3241d5](https://goerli.etherscan.io/address/0x79906a1b020f57780f2e56fc33a83deee6a63a4f)
+  - OpenSea Testnet: https://testnets.opensea.io/assets/goerli/0x70826a5bcfb07e3984afb226d6cf8d1816ece144/0
 
   Mainnet:
   - SharesFactory: TBD
