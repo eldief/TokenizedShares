@@ -251,7 +251,7 @@ abstract contract ERC1155TokenizedShares is ITokenizedShares, Clone, ERC1155 {
         TokenizedSharesStorage.Layout storage layout = TokenizedSharesStorage.layout();
 
         unchecked {
-            if (fromBalance > transferAmount) {
+            if (fromBalance >= transferAmount) {
                 uint256 amountWeightedReleased = transferAmount * layout.released[from] / fromBalance;
 
                 // Cannot underflow since fromBalance >= transferAmount

@@ -248,7 +248,7 @@ abstract contract ERC20TokenizedShares is ITokenizedShares, Clone, ERC20 {
         TokenizedSharesStorage.Layout storage layout = TokenizedSharesStorage.layout();
 
         unchecked {
-            if (fromBalance > amount) {
+            if (fromBalance >= amount) {
                 uint256 amountWeightedReleased = amount * layout.released[from] / fromBalance;
 
                 // Cannot underflow since fromBalance >= amount
