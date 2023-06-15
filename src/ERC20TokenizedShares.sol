@@ -41,14 +41,6 @@ abstract contract ERC20TokenizedShares is ITokenizedShares, Clone, ERC20 {
         return _getArgUint256(32) * 10 ** decimals();
     }
 
-    /**
-     * @notice User defined encoded data.
-     * @dev Equivalent for 'bytes public (immutable) customData'.
-     */
-    function customData() public pure returns (bytes memory) {
-        return _getArgBytes(128, _getArgUint256(96));
-    }
-
     //--------------------------------------//
     //              MODIFIERS               //
     //--------------------------------------//
