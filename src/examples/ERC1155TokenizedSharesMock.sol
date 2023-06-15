@@ -10,24 +10,15 @@ import "../ERC1155TokenizedShares.sol";
  */
 
 contract ERC1155TokenizedSharesMock is ERC1155TokenizedShares {
-    struct Data {
-        string name;
-        string symbol;
-        string uri;
-    }
-
     function name() public pure returns (string memory) {
-        Data memory data = abi.decode(customData(), (Data));
-        return data.name;
+        return "NAME";
     }
 
     function symbol() public pure returns (string memory) {
-        Data memory data = abi.decode(customData(), (Data));
-        return data.symbol;
+        return "SYMBOL";
     }
 
     function uri(uint256) public pure override returns (string memory) {
-        Data memory data = abi.decode(customData(), (Data));
-        return data.uri;
+        return "URI";
     }
 }

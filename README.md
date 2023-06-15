@@ -53,11 +53,6 @@ Buying a TokenizedShare of a collection would allow it's owner to bet on a colle
     - Max: 1_000 (10%).
     - Sum of `shares` + `keeperShares` must be exactly 10_000.
 
-  - `customData`: Immutable encoded bytes injected while cloning `ITokenizedShares`.
-    - Optional. 
-    - Default: empty.
-    - [Example](https://github.com/eldief/TokenizedShares/blob/main/src/mocks/ERC1155TokenSharesMock.sol)
-
   `releaseShares`: Release ETH accrued by `ITokenizedShares`.
   - `owners`: Address array of shares owners to release ETH to.
     - Required.

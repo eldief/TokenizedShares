@@ -257,13 +257,13 @@ abstract contract ERC20TokenizedShares is ITokenizedShares, Clone, ERC20 {
 
         unchecked {
             if (fromBalance > amount) {
-                uint256 transferWeightedCollected = amount * layout.released[from] / fromBalance;
+                uint256 amountWeightedReleased = amount * layout.released[from] / fromBalance;
 
-                // Cannot underflow since fromBalance > amount
-                layout.released[from] -= transferWeightedCollected;
+                // Cannot underflow since fromBalance >= amount
+                layout.released[from] -= amountWeightedReleased;
 
                 // Cannot realistically overflow
-                layout.released[to] += transferWeightedCollected;
+                layout.released[to] += amountWeightedReleased;
             }
         }
     }

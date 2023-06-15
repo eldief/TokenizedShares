@@ -42,14 +42,6 @@ abstract contract ERC1155TokenizedShares is ITokenizedShares, Clone, ERC1155 {
         return _getArgUint256(32);
     }
 
-    /**
-     * @notice User defined encoded data.
-     * @dev Equivalent for 'bytes public (immutable) customData'.
-     */
-    function customData() public pure returns (bytes memory) {
-        return _getArgBytes(128, _getArgUint256(96));
-    }
-
     //--------------------------------------//
     //              MODIFIERS               //
     //--------------------------------------//
@@ -103,7 +95,7 @@ abstract contract ERC1155TokenizedShares is ITokenizedShares, Clone, ERC1155 {
      *
      * @param owners Shares owners to release ETH to.
      */
-    function releaseShares(address[] calldata owners) external {
+    function releaseShares(address[] calldata owners) public virtual {
         uint256 length = owners.length;
         if (length == 0) revert ITokenizedShares__NoSharesOwners();
         if (address(this).balance == 0) revert ITokenizedShares__NoBalance();
@@ -261,13 +253,13 @@ abstract contract ERC1155TokenizedShares is ITokenizedShares, Clone, ERC1155 {
 
         unchecked {
             if (fromBalance > transferAmount) {
-                uint256 transferWeightedCollected = transferAmount * layout.released[from] / fromBalance;
+                uint256 amountWeightedReleased = transferAmount * layout.released[from] / fromBalance;
 
-                // Cannot underflow since fromBalance > transferAmount
-                layout.released[from] -= transferWeightedCollected;
+                // Cannot underflow since fromBalance >= transferAmount
+                layout.released[from] -= amountWeightedReleased;
 
                 // Cannot realistically overflow
-                layout.released[to] += transferWeightedCollected;
+                layout.released[to] += amountWeightedReleased;
             }
         }
     }

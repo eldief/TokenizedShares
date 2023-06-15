@@ -9,18 +9,11 @@ import "../ERC20TokenizedShares.sol";
  * @notice Example for ERC20 implementing Tokenized Shares.
  */
 contract ERC20TokenizedSharesMock is ERC20TokenizedShares {
-    struct Data {
-        string name;
-        string symbol;
-    }
-
     function name() public pure override returns (string memory) {
-        Data memory data = abi.decode(customData(), (Data));
-        return data.name;
+        return "NAME";
     }
 
     function symbol() public pure override returns (string memory) {
-        Data memory data = abi.decode(customData(), (Data));
-        return data.symbol;
+        return "SYMBOL";
     }
 }

@@ -33,7 +33,6 @@ interface ITokenizedShares {
     //--------------------------------------//
     //           IMMUTABLES                 //
     //--------------------------------------//
-    function customData() external pure returns (bytes memory);
     function factory() external pure returns (address);
     function keeperShares() external pure returns (uint256);
 }
