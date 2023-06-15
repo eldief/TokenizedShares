@@ -22,10 +22,10 @@ interface ISharesFactory {
     //            FUNCTIONS                 //
     //--------------------------------------//
     // forgefmt: disable-start
-    function addTokenizedShares(address[] calldata recipients, uint256[] calldata shares) external returns (address);
-    function addTokenizedShares(address implementation, address[] calldata recipients, uint256[] calldata shares) external returns (address);
-    function addTokenizedShares(uint256 keeperShares, address[] calldata recipients, uint256[] calldata shares) external returns (address);
-    function addTokenizedShares(address implementation, uint256 keeperShares, address[] calldata recipients, uint256[] calldata shares) external returns (address);
+    function addTokenizedShares(address[] calldata recipients, uint16[] calldata shares) external returns (address);
+    function addTokenizedShares(address implementation, address[] calldata recipients, uint16[] calldata shares) external returns (address);
+    function addTokenizedShares(uint16 keeperShares, address[] calldata recipients, uint16[] calldata shares) external returns (address);
+    function addTokenizedShares(address implementation, uint16 keeperShares, address[] calldata recipients, uint16[] calldata shares) external returns (address);
 
     function releaseShares(address[] calldata owners) external;
     function releaseShares(address[] calldata tokenShares, address[] calldata owners) external;

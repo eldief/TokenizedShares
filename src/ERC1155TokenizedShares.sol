@@ -31,7 +31,7 @@ abstract contract ERC1155TokenizedShares is ITokenizedShares, Clone, ERC1155 {
      * @dev Equivalent for 'address public immutable factory'.
      */
     function factory() public pure returns (address) {
-        return _getArgAddress(12);
+        return _getArgAddress(0);
     }
 
     /**
@@ -39,7 +39,7 @@ abstract contract ERC1155TokenizedShares is ITokenizedShares, Clone, ERC1155 {
      * @dev Equivalent for 'uint256 public immutable keeperShares'.
      */
     function keeperShares() public pure returns (uint256) {
-        return _getArgUint256(32);
+        return _getArgUint16(20);
     }
 
     //--------------------------------------//
@@ -66,7 +66,7 @@ abstract contract ERC1155TokenizedShares is ITokenizedShares, Clone, ERC1155 {
      * @param recipients Mint recipients.
      * @param shares Recipients shares amount.
      */
-    function factoryMintShares(address[] calldata recipients, uint256[] calldata shares) external factoryOnly {
+    function factoryMintShares(address[] calldata recipients, uint16[] calldata shares) external factoryOnly {
         uint256 length = recipients.length;
         if (length == 0) revert ITokenizedShares__NoRecipients();
         if (length != shares.length) revert ITokenizedShares__ArrayLengthsMismatch();

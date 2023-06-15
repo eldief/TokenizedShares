@@ -42,7 +42,7 @@ contract PerTokenTokenizedRoyalties is ERC721, IERC2981 {
         recipients[0] = to;
         recipients[1] = owner;
 
-        uint256[] memory shares = new uint256[](2);
+        uint16[] memory shares = new uint16[](2);
         shares[0] = 5_000; // 50%
         shares[1] = 5_000; // 50%
 

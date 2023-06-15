@@ -18,7 +18,7 @@ contract ERC1155TokenSharesTest is Test {
     function testERC1155AddTokenizedShares() public {
         address tokenizedShares;
         address[] memory recipients;
-        uint256[] memory shares;
+        uint16[] memory shares;
 
         // Revert ITokenizedShares__NoRecipients
         recipients = new address[](0);
@@ -31,12 +31,12 @@ contract ERC1155TokenSharesTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        shares = new uint256[](1);
+        shares = new uint16[](1);
         vm.expectRevert(ITokenizedShares.ITokenizedShares__ArrayLengthsMismatch.selector);
         factory.addTokenizedShares(recipients, shares);
 
         // Revert ITokenizedShares__InvalidSharesAmount
-        shares = new uint256[](3);
+        shares = new uint16[](3);
         shares[0] = 6_999;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -65,9 +65,9 @@ contract ERC1155TokenSharesTest is Test {
 
     function testERC1155AddTokenizedSharesWithKeeperShares() public {
         address tokenizedShares;
-        uint256 keeperShares;
+        uint16 keeperShares;
         address[] memory recipients;
-        uint256[] memory shares;
+        uint16[] memory shares;
 
         recipients = new address[](3);
         recipients[0] = makeAddr("recipient_0");
@@ -76,7 +76,7 @@ contract ERC1155TokenSharesTest is Test {
 
         // Revert ITokenizedShares__InvalidSharesAmount
         keeperShares = 110;
-        shares = new uint256[](3);
+        shares = new uint16[](3);
         shares[0] = 6_889;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -102,9 +102,9 @@ contract ERC1155TokenSharesTest is Test {
     function testERC1155AddTokenizedSharesWithKeeperSharesWithCustomImplementation() public {
         address customImplementation;
         address tokenizedShares;
-        uint256 keeperShares;
+        uint16 keeperShares;
         address[] memory recipients;
-        uint256[] memory shares;
+        uint16[] memory shares;
 
         recipients = new address[](3);
         recipients[0] = makeAddr("recipient_0");
@@ -113,7 +113,7 @@ contract ERC1155TokenSharesTest is Test {
 
         // Revert ITokenizedShares__InvalidSharesAmount
         keeperShares = 110;
-        shares = new uint256[](3);
+        shares = new uint16[](3);
         shares[0] = 6_889;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -140,13 +140,13 @@ contract ERC1155TokenSharesTest is Test {
     function testERC1155MultiAddTokenizedShares() public {
         uint256 number = 10;
 
-        for (uint256 i = 1; i <= number; ++i) {
+        for (uint16 i = 1; i <= number; ++i) {
             address[] memory recipients = new address[](3);
             recipients[0] = makeAddr(string(abi.encode(i)));
             recipients[1] = makeAddr(string(abi.encode(i + i)));
             recipients[2] = makeAddr(string(abi.encode(i + i + i)));
 
-            uint256[] memory shares = new uint256[](3);
+            uint16[] memory shares = new uint16[](3);
             shares[0] = 7_000;
             shares[1] = 2_000 + i;
             shares[2] = 1_000 - i;
@@ -165,16 +165,16 @@ contract ERC1155TokenSharesTest is Test {
     }
 
     function testERC1155MultiAddTokenizedSharesWithKeeperShares() public {
-        uint256 number = 10;
+        uint16 number = 10;
 
-        for (uint256 i = 1; i <= number; ++i) {
+        for (uint16 i = 1; i <= number; ++i) {
             address[] memory recipients = new address[](3);
             recipients[0] = makeAddr(string(abi.encode(i)));
             recipients[1] = makeAddr(string(abi.encode(i + i)));
             recipients[2] = makeAddr(string(abi.encode(i + i + i)));
 
-            uint256 keeperShares = 111;
-            uint256[] memory shares = new uint256[](3);
+            uint16 keeperShares = 111;
+            uint16[] memory shares = new uint16[](3);
             shares[0] = 6_889;
             shares[1] = 2_000 + i;
             shares[2] = 1_000 - i;
@@ -200,7 +200,7 @@ contract ERC1155TokenSharesTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 7_000;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -224,8 +224,8 @@ contract ERC1155TokenSharesTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256 keeperShares = 111;
-        uint256[] memory shares = new uint256[](3);
+        uint16 keeperShares = 111;
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 6_889;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -250,7 +250,7 @@ contract ERC1155TokenSharesTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 7_000;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -285,7 +285,7 @@ contract ERC1155TokenSharesTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 7_000;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -345,8 +345,8 @@ contract ERC1155TokenSharesTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256 keeperShares = 111;
-        uint256[] memory shares = new uint256[](3);
+        uint16 keeperShares = 111;
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 6_889;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -388,7 +388,7 @@ contract ERC1155TokenSharesTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 7_000;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -431,7 +431,7 @@ contract ERC1155TokenSharesTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 7_000;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -489,7 +489,7 @@ contract ERC1155TokenSharesTest is Test {
     function testERC1155ReleasableWithTransfersAfterRelease() public {
         uint256 amount = 0.001 ether;
         address[] memory recipients;
-        uint256[] memory shares;
+        uint16[] memory shares;
         bool success;
 
         address recipient_0 = makeAddr("recipient_0");
@@ -503,7 +503,7 @@ contract ERC1155TokenSharesTest is Test {
         recipients[1] = recipient_1;
         recipients[2] = recipient_2;
 
-        shares = new uint256[](3);
+        shares = new uint16[](3);
         shares[0] = 7_000;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -568,19 +568,19 @@ contract ERC1155TokenSharesTest is Test {
     //                FUZZ                  //
     //--------------------------------------//
 
-    function testERC1155FuzzAddTokenizedShares(uint256 shares1, uint256 shares2) public {
+    function testERC1155FuzzAddTokenizedShares(uint16 shares1, uint16 shares2) public {
         vm.assume(shares1 > 0 && shares1 < 10_000);
         vm.assume(shares2 > 0 && shares2 < 10_000);
         vm.assume(shares1 + shares2 < 10_000);
 
-        uint256 shares3 = 10_000 - shares1 - shares2;
+        uint16 shares3 = 10_000 - shares1 - shares2;
 
         address[] memory recipients = new address[](3);
         recipients[0] = makeAddr("recipient_0");
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = shares1;
         shares[1] = shares2;
         shares[2] = shares3;
@@ -592,7 +592,7 @@ contract ERC1155TokenSharesTest is Test {
         assertEq(tokenizedShares.balanceOf(recipients[2], 0), shares[2]);
     }
 
-    function testERC1155FuzzAddTokenizedSharesWithKeeperShares(uint256 keeperShares, uint256 shares1, uint256 shares2)
+    function testERC1155FuzzAddTokenizedSharesWithKeeperShares(uint16 keeperShares, uint16 shares1, uint16 shares2)
         public
     {
         vm.assume(keeperShares > 0 && keeperShares <= 1_000);
@@ -600,14 +600,14 @@ contract ERC1155TokenSharesTest is Test {
         vm.assume(shares2 > 0 && shares2 < 10_000);
         vm.assume(shares1 + shares2 + keeperShares < 10_000);
 
-        uint256 shares3 = 10_000 - shares1 - shares2 - keeperShares;
+        uint16 shares3 = 10_000 - shares1 - shares2 - keeperShares;
 
         address[] memory recipients = new address[](3);
         recipients[0] = makeAddr("recipient_0");
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = shares1;
         shares[1] = shares2;
         shares[2] = shares3;
@@ -620,22 +620,22 @@ contract ERC1155TokenSharesTest is Test {
     }
 
     function testERC1155FuzzAddTokenizedSharesWithKeeperSharesWithCustomImplementation(
-        uint256 keeperShares,
-        uint256 shares1,
-        uint256 shares2
+        uint16 keeperShares,
+        uint16 shares1,
+        uint16 shares2
     ) public {
         vm.assume(keeperShares > 0 && keeperShares <= 1_000);
         vm.assume(shares1 > 0 && shares1 < 10_000);
         vm.assume(shares2 > 0 && shares2 < 10_000);
         vm.assume(shares1 + shares2 + keeperShares < 10_000);
 
-        uint256 shares3 = 10_000 - shares1 - shares2 - keeperShares;
+        uint16 shares3 = 10_000 - shares1 - shares2 - keeperShares;
         address[] memory recipients = new address[](3);
         recipients[0] = makeAddr("recipient_0");
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = shares1;
         shares[1] = shares2;
         shares[2] = shares3;
@@ -649,22 +649,22 @@ contract ERC1155TokenSharesTest is Test {
         assertEq(tokenizedShares.balanceOf(recipients[2], 0), shares[2]);
     }
 
-    function testERC1155FuzzMultiAddTokenizedShares(uint256 shares1, uint256 shares2) public {
+    function testERC1155FuzzMultiAddTokenizedShares(uint16 shares1, uint16 shares2) public {
         vm.assume(shares1 > 0 && shares1 < 10_000);
         vm.assume(shares2 > 0 && shares2 < 10_000);
         vm.assume(shares1 + shares2 < 10_000);
 
-        uint256 shares3 = 10_000 - shares1 - shares2;
+        uint16 shares3 = 10_000 - shares1 - shares2;
         uint256 number = 10;
         vm.assume(shares3 > number);
 
-        for (uint256 i = 1; i <= number; ++i) {
+        for (uint16 i = 1; i <= number; ++i) {
             address[] memory recipients = new address[](3);
             recipients[0] = makeAddr(string(abi.encode(i)));
             recipients[1] = makeAddr(string(abi.encode(i + i)));
             recipients[2] = makeAddr(string(abi.encode(i + i + i)));
 
-            uint256[] memory shares = new uint256[](3);
+            uint16[] memory shares = new uint16[](3);
             shares[0] = shares1;
             shares[1] = shares2 + i;
             shares[2] = shares3 - i;
@@ -677,27 +677,25 @@ contract ERC1155TokenSharesTest is Test {
         }
     }
 
-    function testERC1155FuzzMultiAddTokenizedSharesWithKeeperShares(
-        uint256 keeperShares,
-        uint256 shares1,
-        uint256 shares2
-    ) public {
+    function testERC1155FuzzMultiAddTokenizedSharesWithKeeperShares(uint16 keeperShares, uint16 shares1, uint16 shares2)
+        public
+    {
         vm.assume(keeperShares > 0 && keeperShares <= 1_000);
         vm.assume(shares1 > 0 && shares1 < 10_000);
         vm.assume(shares2 > 0 && shares2 < 10_000);
         vm.assume(shares1 + shares2 + keeperShares < 10_000);
 
-        uint256 shares3 = 10_000 - shares1 - shares2 - keeperShares;
+        uint16 shares3 = 10_000 - shares1 - shares2 - keeperShares;
         uint256 number = 10;
         vm.assume(shares3 > number);
 
-        for (uint256 i = 1; i <= number; ++i) {
+        for (uint16 i = 1; i <= number; ++i) {
             address[] memory recipients = new address[](3);
             recipients[0] = makeAddr(string(abi.encode(i)));
             recipients[1] = makeAddr(string(abi.encode(i + i)));
             recipients[2] = makeAddr(string(abi.encode(i + i + i)));
 
-            uint256[] memory shares = new uint256[](3);
+            uint16[] memory shares = new uint16[](3);
             shares[0] = shares1;
             shares[1] = shares2 + i;
             shares[2] = shares3 - i;
@@ -719,7 +717,7 @@ contract ERC1155TokenSharesTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 7_000;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -743,8 +741,8 @@ contract ERC1155TokenSharesTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256 keeperShares = 111;
-        uint256[] memory shares = new uint256[](3);
+        uint16 keeperShares = 111;
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 6_889;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -769,7 +767,7 @@ contract ERC1155TokenSharesTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 7_000;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -796,8 +794,8 @@ contract ERC1155TokenSharesTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256 keeperShares = 111;
-        uint256[] memory shares = new uint256[](3);
+        uint16 keeperShares = 111;
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 6_889;
         shares[1] = 2_000;
         shares[2] = 1_000;

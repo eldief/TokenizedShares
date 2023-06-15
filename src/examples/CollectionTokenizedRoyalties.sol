@@ -23,7 +23,7 @@ contract CollectionTokenizedRoyalties is ERC721, IERC2981 {
 
     uint256 public constant ROYALTIES_BPS = 1_000; // 10%
 
-    constructor(address factory_, address[] memory recipients, uint256[] memory shares) {
+    constructor(address factory_, address[] memory recipients, uint16[] memory shares) {
         // Reference ISharesFactory implementation
         ISharesFactory factory = ISharesFactory(factory_);
 

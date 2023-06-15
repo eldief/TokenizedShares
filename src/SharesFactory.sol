@@ -51,7 +51,7 @@ contract SharesFactory is ISharesFactory {
      *
      * @return tokenizedShares Cloned `ITokenizedShares` address.
      */
-    function addTokenizedShares(address[] calldata recipients, uint256[] calldata shares) external returns (address) {
+    function addTokenizedShares(address[] calldata recipients, uint16[] calldata shares) external returns (address) {
         return _addTokenizedShares(defaultImplementation, 0, recipients, shares);
     }
 
@@ -67,7 +67,7 @@ contract SharesFactory is ISharesFactory {
      *
      * @return tokenizedShares Cloned `ITokenizedShares` address.
      */
-    function addTokenizedShares(address implementation, address[] calldata recipients, uint256[] calldata shares)
+    function addTokenizedShares(address implementation, address[] calldata recipients, uint16[] calldata shares)
         external
         returns (address)
     {
@@ -85,7 +85,7 @@ contract SharesFactory is ISharesFactory {
      *
      * @return tokenizedShares Cloned `ITokenizedShares` address.
      */
-    function addTokenizedShares(uint256 keeperShares, address[] calldata recipients, uint256[] calldata shares)
+    function addTokenizedShares(uint16 keeperShares, address[] calldata recipients, uint16[] calldata shares)
         external
         returns (address)
     {
@@ -108,9 +108,9 @@ contract SharesFactory is ISharesFactory {
      */
     function addTokenizedShares(
         address implementation,
-        uint256 keeperShares,
+        uint16 keeperShares,
         address[] calldata recipients,
-        uint256[] calldata shares
+        uint16[] calldata shares
     ) external returns (address) {
         if (keeperShares > MAX_KEEPER_SHARES) revert ISharesFactory__InvalidKeeperShares();
 
@@ -181,14 +181,14 @@ contract SharesFactory is ISharesFactory {
      */
     function _addTokenizedShares(
         address implementation,
-        uint256 keeperShares,
+        uint16 keeperShares,
         address[] calldata recipients,
-        uint256[] calldata shares
+        uint16[] calldata shares
     ) internal returns (address tokenizedShares) {
         // Validate ITokenizedShares implementation.
         ITokenizedShares(implementation);
 
-        tokenizedShares = LibClone.clone(implementation, abi.encode(address(this), keeperShares));
+        tokenizedShares = LibClone.clone(implementation, abi.encodePacked(address(this), keeperShares));
         SharesFactoryStorage.layout().tokenizedShares.push(tokenizedShares);
 
         ITokenizedShares(tokenizedShares).factoryMintShares(recipients, shares);

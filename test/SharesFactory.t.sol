@@ -18,14 +18,14 @@ contract SharesFactoryTest is Test {
     function testAddTokenShares() public {
         address tokenizedShares;
         address[] memory recipients;
-        uint256[] memory shares;
+        uint16[] memory shares;
 
         recipients = new address[](3);
         recipients[0] = makeAddr("recipient_0");
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        shares = new uint256[](3);
+        shares = new uint16[](3);
         shares[0] = 7_000;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -44,16 +44,16 @@ contract SharesFactoryTest is Test {
 
     function testAddTokenSharesWithKeeperShares() public {
         address tokenizedShares;
-        uint256 keeperShares;
+        uint16 keeperShares;
         address[] memory recipients;
-        uint256[] memory shares;
+        uint16[] memory shares;
 
         recipients = new address[](3);
         recipients[0] = makeAddr("recipient_0");
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        shares = new uint256[](3);
+        shares = new uint16[](3);
         shares[0] = 6_889;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -81,16 +81,16 @@ contract SharesFactoryTest is Test {
     function testAddTokenSharesWithKeeperSharesWithCustomImplementation() public {
         address customImplementation;
         address tokenizedShares;
-        uint256 keeperShares;
+        uint16 keeperShares;
         address[] memory recipients;
-        uint256[] memory shares;
+        uint16[] memory shares;
 
         recipients = new address[](3);
         recipients[0] = makeAddr("recipient_0");
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        shares = new uint256[](3);
+        shares = new uint16[](3);
         shares[0] = 6_889;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -117,15 +117,15 @@ contract SharesFactoryTest is Test {
     }
 
     function testMultiAddTokenShares() public {
-        uint256 number = 10;
+        uint16 number = 10;
 
-        for (uint256 i = 1; i <= number; ++i) {
+        for (uint16 i = 1; i <= number; ++i) {
             address[] memory recipients = new address[](3);
             recipients[0] = makeAddr(string(abi.encode(i)));
             recipients[1] = makeAddr(string(abi.encode(i + i)));
             recipients[2] = makeAddr(string(abi.encode(i + i + i)));
 
-            uint256[] memory shares = new uint256[](3);
+            uint16[] memory shares = new uint16[](3);
             shares[0] = 7_000;
             shares[1] = 2_000 + i;
             shares[2] = 1_000 - i;
@@ -144,16 +144,16 @@ contract SharesFactoryTest is Test {
     }
 
     function testMultiAddTokenSharesWithKeeperShares() public {
-        uint256 number = 10;
+        uint16 number = 10;
 
-        for (uint256 i = 1; i <= number; ++i) {
+        for (uint16 i = 1; i <= number; ++i) {
             address[] memory recipients = new address[](3);
             recipients[0] = makeAddr(string(abi.encode(i)));
             recipients[1] = makeAddr(string(abi.encode(i + i)));
             recipients[2] = makeAddr(string(abi.encode(i + i + i)));
 
-            uint256 keeperShares = 111;
-            uint256[] memory shares = new uint256[](3);
+            uint16 keeperShares = 111;
+            uint16[] memory shares = new uint16[](3);
             shares[0] = 6_889;
             shares[1] = 2_000 + i;
             shares[2] = 1_000 - i;
@@ -184,7 +184,7 @@ contract SharesFactoryTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 7_000;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -222,8 +222,8 @@ contract SharesFactoryTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256 keeperShares = 111;
-        uint256[] memory shares = new uint256[](3);
+        uint16 keeperShares = 111;
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 6_889;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -267,7 +267,7 @@ contract SharesFactoryTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 7_000;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -311,8 +311,8 @@ contract SharesFactoryTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256 keeperShares = 100;
-        uint256[] memory shares = new uint256[](3);
+        uint16 keeperShares = 100;
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 6_900;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -352,18 +352,18 @@ contract SharesFactoryTest is Test {
     //                FUZZ                  //
     //--------------------------------------//
 
-    function testFuzzAddTokenShares(uint256 shares1, uint256 shares2) public {
+    function testFuzzAddTokenShares(uint16 shares1, uint16 shares2) public {
         vm.assume(shares1 > 0 && shares1 < 10_000);
         vm.assume(shares2 > 0 && shares2 < 10_000);
         vm.assume(shares1 + shares2 < 10_000);
-        uint256 shares3 = 10_000 - shares1 - shares2;
+        uint16 shares3 = 10_000 - shares1 - shares2;
 
         address[] memory recipients = new address[](3);
         recipients[0] = makeAddr("recipient_0");
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = shares1;
         shares[1] = shares2;
         shares[2] = shares3;
@@ -374,19 +374,19 @@ contract SharesFactoryTest is Test {
         assertEq(tokenizedShares.balanceOf(recipients[2], 0), shares[2]);
     }
 
-    function testFuzzAddTokenSharesWithKeeperShares(uint256 keeperShares, uint256 shares1, uint256 shares2) public {
+    function testFuzzAddTokenSharesWithKeeperShares(uint16 keeperShares, uint16 shares1, uint16 shares2) public {
         vm.assume(keeperShares > 0 && keeperShares <= 1_000);
         vm.assume(shares1 > 0 && shares1 < 10_000);
         vm.assume(shares2 > 0 && shares2 < 10_000);
         vm.assume(shares1 + shares2 + keeperShares < 10_000);
-        uint256 shares3 = 10_000 - shares1 - shares2 - keeperShares;
+        uint16 shares3 = 10_000 - shares1 - shares2 - keeperShares;
 
         address[] memory recipients = new address[](3);
         recipients[0] = makeAddr("recipient_0");
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = shares1;
         shares[1] = shares2;
         shares[2] = shares3;
@@ -398,22 +398,22 @@ contract SharesFactoryTest is Test {
     }
 
     function testFuzzAddTokenSharesWithKeeperSharesWithCustomImplementation(
-        uint256 keeperShares,
-        uint256 shares1,
-        uint256 shares2
+        uint16 keeperShares,
+        uint16 shares1,
+        uint16 shares2
     ) public {
         vm.assume(keeperShares > 0 && keeperShares <= 1_000);
         vm.assume(shares1 > 0 && shares1 < 10_000);
         vm.assume(shares2 > 0 && shares2 < 10_000);
         vm.assume(shares1 + shares2 + keeperShares < 10_000);
-        uint256 shares3 = 10_000 - shares1 - shares2 - keeperShares;
+        uint16 shares3 = 10_000 - shares1 - shares2 - keeperShares;
 
         address[] memory recipients = new address[](3);
         recipients[0] = makeAddr("recipient_0");
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = shares1;
         shares[1] = shares2;
         shares[2] = shares3;
@@ -426,22 +426,22 @@ contract SharesFactoryTest is Test {
         assertEq(tokenizedShares.balanceOf(recipients[2], 0), shares[2]);
     }
 
-    function testFuzzMultiAddTokenShares(uint256 shares1, uint256 shares2) public {
+    function testFuzzMultiAddTokenShares(uint16 shares1, uint16 shares2) public {
         vm.assume(shares1 > 0 && shares1 < 10_000);
         vm.assume(shares2 > 0 && shares2 < 10_000);
         vm.assume(shares1 + shares2 < 10_000);
 
-        uint256 shares3 = 10_000 - shares1 - shares2;
+        uint16 shares3 = 10_000 - shares1 - shares2;
         uint256 number = 10;
         vm.assume(shares3 > number);
 
-        for (uint256 i = 1; i <= number; ++i) {
+        for (uint16 i = 1; i <= number; ++i) {
             address[] memory recipients = new address[](3);
             recipients[0] = makeAddr(string(abi.encode(i)));
             recipients[1] = makeAddr(string(abi.encode(i + i)));
             recipients[2] = makeAddr(string(abi.encode(i + i + i)));
 
-            uint256[] memory shares = new uint256[](3);
+            uint16[] memory shares = new uint16[](3);
             shares[0] = shares1;
             shares[1] = shares2 + i;
             shares[2] = shares3 - i;
@@ -453,25 +453,23 @@ contract SharesFactoryTest is Test {
         }
     }
 
-    function testFuzzMultiAddTokenSharesWithKeeperShares(uint256 keeperShares, uint256 shares1, uint256 shares2)
-        public
-    {
+    function testFuzzMultiAddTokenSharesWithKeeperShares(uint16 keeperShares, uint16 shares1, uint16 shares2) public {
         vm.assume(keeperShares > 0 && keeperShares <= 1_000);
         vm.assume(shares1 > 0 && shares1 < 10_000);
         vm.assume(shares2 > 0 && shares2 < 10_000);
         vm.assume(shares1 + shares2 + keeperShares < 10_000);
 
-        uint256 shares3 = 10_000 - shares1 - shares2 - keeperShares;
+        uint16 shares3 = 10_000 - shares1 - shares2 - keeperShares;
         uint256 number = 10;
         vm.assume(shares3 > number);
 
-        for (uint256 i = 1; i <= number; ++i) {
+        for (uint16 i = 1; i <= number; ++i) {
             address[] memory recipients = new address[](3);
             recipients[0] = makeAddr(string(abi.encode(i)));
             recipients[1] = makeAddr(string(abi.encode(i + i)));
             recipients[2] = makeAddr(string(abi.encode(i + i + i)));
 
-            uint256[] memory shares = new uint256[](3);
+            uint16[] memory shares = new uint16[](3);
             shares[0] = shares1;
             shares[1] = shares2 + i;
             shares[2] = shares3 - i;
@@ -494,7 +492,7 @@ contract SharesFactoryTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256[] memory shares = new uint256[](3);
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 7_000;
         shares[1] = 2_000;
         shares[2] = 1_000;
@@ -519,8 +517,8 @@ contract SharesFactoryTest is Test {
         recipients[1] = makeAddr("recipient_1");
         recipients[2] = makeAddr("recipient_2");
 
-        uint256 keeperShares = 111;
-        uint256[] memory shares = new uint256[](3);
+        uint16 keeperShares = 111;
+        uint16[] memory shares = new uint16[](3);
         shares[0] = 6_889;
         shares[1] = 2_000;
         shares[2] = 1_000;
