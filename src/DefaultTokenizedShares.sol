@@ -40,7 +40,7 @@ contract DefaultTokenizedShares is ERC1155TokenizedShares {
     //--------------------------------------//
 
     function name() public view returns (string memory) {
-        return string(abi.encodePacked("Tokenized Shares ", bytes(address(this).toHexStringChecksumed())));
+        return string(abi.encodePacked("Tokenized Shares ", bytes(address(this).toHexStringChecksummed())));
     }
 
     function symbol() public pure returns (string memory) {
@@ -54,7 +54,7 @@ contract DefaultTokenizedShares is ERC1155TokenizedShares {
     function uri(uint256) public view override returns (string memory) {
         TokenizedSharesStorage.Layout storage layout = TokenizedSharesStorage.layout();
 
-        bytes memory strAddress = bytes(address(this).toHexStringChecksumed());
+        bytes memory strAddress = bytes(address(this).toHexStringChecksummed());
         bytes memory strTotalReleased = buildStrTotalReleased(layout);
 
         DynamicBufferLib.DynamicBuffer memory jsonBuffer;
