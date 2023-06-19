@@ -16,7 +16,9 @@ interface ISharesFactory {
     //--------------------------------------//
     //               EVENTS                 //
     //--------------------------------------//
-    event NewTokenizedShares(address tokenizedShares);
+    event NewTokenizedShares(
+        address indexed tokenizedShares, uint16 keeperShares, address[] recipients, uint16[] shares
+    );
 
     //--------------------------------------//
     //            FUNCTIONS                 //

@@ -164,6 +164,8 @@ abstract contract ERC1155TokenizedShares is ITokenizedShares, Clone, ERC1155 {
                 ++i;
             }
         } while (i < length);
+
+        emit SharesReleased(address(this), owners);
     }
 
     /**

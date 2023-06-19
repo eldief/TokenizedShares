@@ -173,6 +173,8 @@ abstract contract ERC20TokenizedShares is ITokenizedShares, Clone, ERC20 {
                 ++i;
             }
         } while (i < length);
+        
+        emit SharesReleased(address(this), owners);
     }
 
     /**

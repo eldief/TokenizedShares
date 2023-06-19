@@ -191,7 +191,8 @@ contract SharesFactory is ISharesFactory {
         SharesFactoryStorage.layout().tokenizedShares.push(tokenizedShares);
 
         ITokenizedShares(tokenizedShares).factoryMintShares(recipients, shares);
-        emit NewTokenizedShares(tokenizedShares);
+
+        emit NewTokenizedShares(tokenizedShares, keeperShares, recipients, shares);
     }
 
     /**

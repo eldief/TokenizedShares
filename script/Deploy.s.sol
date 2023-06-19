@@ -6,7 +6,6 @@ import "../src/SharesFactory.sol";
 import "../src/DefaultTokenizedShares.sol";
 
 // forge script ./script/Deploy.s.sol:DeploySSTORE2s -vvvv --broadcast --rpc-url ${GOERLI_RPC_URL}
-
 contract DeploySSTORE2s is Script {
     function setUp() public {}
 
@@ -44,10 +43,10 @@ contract DeployScript is Script {
         uint256 pk = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(pk);
 
-        address chunk0 = 0x0775698813dB69806a556a01533f136D00Fdd3aB;
-        address chunk1 = 0x83C09900d8B4d008d89E5eC3211E22c7c2253B38;
-        address chunk2 = 0x3fE043246D5fd6DDff72FA0Da2fF1c3AA112a1B5;
-        address chunk3 = 0xd381B9e38F0751E0e46f2379086C8E35F59D82bd;
+        address chunk0 = 0x0775698813dB69806a556a01533f136D00Fdd3aB; // DeploySSTORE2s chunk0 address
+        address chunk1 = 0x83C09900d8B4d008d89E5eC3211E22c7c2253B38; // DeploySSTORE2s chunk1 address
+        address chunk2 = 0x3fE043246D5fd6DDff72FA0Da2fF1c3AA112a1B5; // DeploySSTORE2s chunk2 address
+        address chunk3 = 0xd381B9e38F0751E0e46f2379086C8E35F59D82bd; // DeploySSTORE2s chunk3 address
         address sharesFactory =
             address(new SharesFactory(address(new DefaultTokenizedShares(chunk0, chunk1, chunk2, chunk3))));
 

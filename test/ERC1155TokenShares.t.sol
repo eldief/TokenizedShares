@@ -7,7 +7,7 @@ import "../src/examples/ERC1155TokenizedSharesMock.sol";
 
 contract ERC1155TokenSharesTest is Test {
     event ReceiveETH(uint256);
-    event NewTokenizedShares(address tokenizedShares);
+    event SharesReleased(address indexed tokenizedShares, address[] owners);
 
     SharesFactory public factory;
 
@@ -46,10 +46,6 @@ contract ERC1155TokenSharesTest is Test {
 
         // Success
         shares[0] = 7_000;
-
-        vm.expectEmit(false, false, false, false);
-        emit NewTokenizedShares(address(0));
-
         tokenizedShares = factory.addTokenizedShares(recipients, shares);
 
         assertEq(ITokenizedShares(tokenizedShares).factory(), address(factory));
@@ -86,10 +82,6 @@ contract ERC1155TokenSharesTest is Test {
 
         // Success
         keeperShares = 111;
-
-        vm.expectEmit(false, false, false, false);
-        emit NewTokenizedShares(address(0));
-
         tokenizedShares = factory.addTokenizedShares(keeperShares, recipients, shares);
 
         assertEq(ITokenizedShares(tokenizedShares).factory(), address(factory));
@@ -124,10 +116,6 @@ contract ERC1155TokenSharesTest is Test {
         // Success
         customImplementation = address(new ERC1155TokenizedSharesMock());
         keeperShares = 111;
-
-        vm.expectEmit(false, false, false, false);
-        emit NewTokenizedShares(address(0));
-
         tokenizedShares = factory.addTokenizedShares(customImplementation, keeperShares, recipients, shares);
 
         assertEq(ITokenizedShares(tokenizedShares).factory(), address(factory));
@@ -150,9 +138,6 @@ contract ERC1155TokenSharesTest is Test {
             shares[0] = 7_000;
             shares[1] = 2_000 + i;
             shares[2] = 1_000 - i;
-
-            vm.expectEmit(false, false, false, false);
-            emit NewTokenizedShares(address(0));
 
             address tokenizedShares = factory.addTokenizedShares(0, recipients, shares);
 
@@ -178,9 +163,6 @@ contract ERC1155TokenSharesTest is Test {
             shares[0] = 6_889;
             shares[1] = 2_000 + i;
             shares[2] = 1_000 - i;
-
-            vm.expectEmit(false, false, false, false);
-            emit NewTokenizedShares(address(0));
 
             address tokenizedShares = factory.addTokenizedShares(keeperShares, recipients, shares);
 
@@ -262,6 +244,8 @@ contract ERC1155TokenSharesTest is Test {
         address[] memory owners = new address[](1);
         owners[0] = recipients[0];
 
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, owners);
         factory.releaseShares(owners);
 
         assertEq(recipients[0].balance, amount * shares[0] / 10_000);
@@ -270,6 +254,8 @@ contract ERC1155TokenSharesTest is Test {
         owners[0] = recipients[1];
         owners[1] = recipients[2];
 
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, owners);
         factory.releaseShares(owners);
 
         assertEq(recipients[1].balance, amount * shares[1] / 10_000);
@@ -297,11 +283,15 @@ contract ERC1155TokenSharesTest is Test {
         // release 7000 shares
         address[] memory owners = new address[](1);
         owners[0] = recipients[0];
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, owners);
         factory.releaseShares(owners);
         assertEq(owners[0].balance, amount * shares[0] / 10_000);
         uint256 prevBalance = owners[0].balance;
 
         // release again 7000 shares for same owner, should not increase balance
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, owners);
         factory.releaseShares(owners);
         assertEq(prevBalance, owners[0].balance);
 
@@ -313,6 +303,8 @@ contract ERC1155TokenSharesTest is Test {
         // release 5000 shares to new owner, should not increase balance
         owners[0] = recipient3;
         prevBalance = owners[0].balance;
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, owners);
         factory.releaseShares(owners);
         assertEq(owners[0].balance, 0);
 
@@ -320,6 +312,8 @@ contract ERC1155TokenSharesTest is Test {
         owners = new address[](2);
         owners[0] = recipients[1];
         owners[1] = recipients[2];
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, owners);
         factory.releaseShares(owners);
         assertEq(recipients[1].balance, amount * shares[1] / 10_000);
         assertEq(recipients[2].balance, amount * shares[2] / 10_000);
@@ -361,6 +355,8 @@ contract ERC1155TokenSharesTest is Test {
 
         uint256 keeperAmount;
         vm.prank(keeper, keeper);
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, owners);
         factory.releaseShares(owners);
 
         assertEq(recipients[0].balance, amount * shares[0] / 10_000);
@@ -372,6 +368,8 @@ contract ERC1155TokenSharesTest is Test {
         owners[1] = recipients[2];
 
         vm.prank(keeper, keeper);
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, owners);
         factory.releaseShares(owners);
 
         assertEq(recipients[1].balance, amount * shares[1] / 10_000);
@@ -405,6 +403,8 @@ contract ERC1155TokenSharesTest is Test {
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[2]), amount * shares[2] / 10_000);
 
         // Release
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, recipients);
         factory.releaseShares(recipients);
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[0]), 0);
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[1]), 0);
@@ -417,6 +417,8 @@ contract ERC1155TokenSharesTest is Test {
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[2]), amount * shares[2] / 10_000);
 
         // Release
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, recipients);
         factory.releaseShares(recipients);
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[0]), 0);
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[1]), 0);
@@ -462,6 +464,8 @@ contract ERC1155TokenSharesTest is Test {
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[3]), amount * transferAmount / 10_000);
 
         // Release
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, recipients);
         factory.releaseShares(recipients);
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[0]), 0);
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[1]), 0);
@@ -479,6 +483,8 @@ contract ERC1155TokenSharesTest is Test {
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[3]), amount * transferAmount / 10_000);
 
         // Release
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, recipients);
         factory.releaseShares(recipients);
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[0]), 0);
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipients[1]), 0);
@@ -527,6 +533,8 @@ contract ERC1155TokenSharesTest is Test {
         recipients[0] = recipient_1;
         recipients[1] = recipient_2;
 
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, recipients);
         factory.releaseShares(recipients);
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_0), 0.0007 ether * 3);
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_1), 0);
@@ -557,6 +565,8 @@ contract ERC1155TokenSharesTest is Test {
         recipients[2] = recipient_2;
         recipients[3] = recipient_3;
 
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, recipients);
         factory.releaseShares(recipients);
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_0), 0);
         assertEq(ITokenizedShares(tokenizedShares).releasable(recipient_1), 0);
@@ -777,6 +787,8 @@ contract ERC1155TokenSharesTest is Test {
         (bool success,) = payable(tokenizedShares).call{value: amount}("");
         assertTrue(success);
 
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, recipients);
         factory.releaseShares(recipients);
 
         assertEq(recipients[0].balance, amount * shares[0] / 10_000);
@@ -806,6 +818,8 @@ contract ERC1155TokenSharesTest is Test {
         assertTrue(success);
 
         vm.prank(keeper, keeper);
+        vm.expectEmit(true, false, false, true);
+        emit SharesReleased(tokenizedShares, recipients);
         factory.releaseShares(recipients);
 
         assertEq(recipients[0].balance, amount * shares[0] / 10_000);

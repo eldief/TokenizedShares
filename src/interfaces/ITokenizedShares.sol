@@ -18,6 +18,11 @@ interface ITokenizedShares {
     error ITokenizedShares__NotSharesFactory();
 
     //--------------------------------------//
+    //               EVENTS                 //
+    //--------------------------------------//
+    event SharesReleased(address indexed tokenizedShares, address[] owners);
+
+    //--------------------------------------//
     //            FUNCTIONS                 //
     //--------------------------------------//
     function factoryMintShares(address[] calldata recipients, uint16[] calldata shares) external;
