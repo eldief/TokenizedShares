@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.20;
 
-import "../SharesFactory.sol";
-import "../ERC1155TokenizedShares.sol";
-import "./ERC1155TokenizedSharesMock.sol";
+import {TokenizedSharesController} from "../TokenizedSharesController.sol";
 import "solady/tokens/ERC721.sol";
 
 interface IERC2981 {
@@ -24,13 +22,15 @@ contract CollectionTokenizedRoyalties is ERC721, IERC2981 {
     uint256 public constant ROYALTIES_BPS = 1_000; // 10%
 
     constructor(address factory_, address[] memory recipients, uint16[] memory shares) {
-        // Reference ISharesFactory implementation
-        ISharesFactory factory = ISharesFactory(factory_);
+        // Reference ITokenizedSharesFactory implementation
+        TokenizedSharesController controller = TokenizedSharesController(factory_);
 
-        // Create new ITokenizedShares with no keeperShares and defaultImplementation
-        tokenizedShares = factory.addTokenizedShares(recipients, shares);
+        // Create new ITokenizedShares with 5% keeperShares and distribute `shares` to `recipients`
+        tokenizedShares = controller.addTokenizedShares(
+            500, recipients, shares, string.concat(name(), " - Royalties Shares"), string.concat(symbol(), "RS")
+        );
 
-        // Optionally subscribe to Operator Filter here
+        // Optionally subscribe to Operator Filter Registry here
     }
 
     // Signal tokenizedShares as on chain royalties recipient
@@ -50,12 +50,12 @@ contract CollectionTokenizedRoyalties is ERC721, IERC2981 {
 
     // Override with custom logic
     function name() public pure override returns (string memory) {
-        return "";
+        return "Collection Tokenized Royalties";
     }
 
     // Override with custom logic
     function symbol() public pure override returns (string memory) {
-        return "";
+        return "CTR";
     }
 
     // Override with custom logic

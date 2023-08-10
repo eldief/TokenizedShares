@@ -1,13 +1,26 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../src/SharesFactory.sol";
-import "../src/DefaultTokenizedShares.sol";
+import {CustomTokenizedSharesRenderer} from "../src/examples/CustomTokenizedSharesRenderer.sol";
+import {ITokenizedSharesRenderer, TokenizedSharesRenderer} from "../src/TokenizedSharesRenderer.sol";
+import {ITokenizedShares, TokenizedShares} from "../src/TokenizedShares.sol";
+import {ITokenizedSharesController, TokenizedSharesController} from "../src/TokenizedSharesController.sol";
+import {ERC1155} from "solady/tokens/ERC1155.sol";
+import {SSTORE2} from "solady/utils/SSTORE2.sol";
 
-contract DefaultTokenizedSharesTest is Test {
-    SharesFactory public factory;
-    DefaultTokenizedShares public tokenizedShares;
+contract TokenizedSharesRendererTest is Test {
+    TokenizedSharesRenderer public renderer;
+    CustomTokenizedSharesRenderer public customRenderer;
+    TokenizedShares public implementation;
+    TokenizedSharesController public controller;
+
+    uint16 public keeperShares;
+    address[] public recipients;
+    uint16[] public shares;
+    string public name = "TokenizedShares";
+    string public symbol = "TOKS";
+    TokenizedShares public tokenizedShares;
 
     function setUp() public {
         address chunk0 = SSTORE2.write(
@@ -23,14 +36,12 @@ contract DefaultTokenizedSharesTest is Test {
             " ethers</text><style>.t{font:bold 17px courier new;fill:black;rotate:-11.7deg}@keyframes b{10%{visibility:hidden}11%{visibility:visible}12%{visibility:hidden}13%{visibility:visible}25%{visibility:hidden}26%{visibility:visible}}.b{animation:b 10s steps(100,start) infinite}</style></svg>"
         );
 
-        tokenizedShares = new DefaultTokenizedShares(chunk0, chunk1, chunk2, chunk3);
+        customRenderer = new CustomTokenizedSharesRenderer();
+        renderer = new TokenizedSharesRenderer(chunk0, chunk1, chunk2, chunk3);
+        implementation = new TokenizedShares(address(renderer));
+        controller = new TokenizedSharesController(address(implementation));
 
-        factory = new SharesFactory(address(tokenizedShares));
-    }
-
-    function testDefaultTokenizedSharesURI() public {
-        address[] memory recipients;
-        uint16[] memory shares;
+        keeperShares = 1_000;
 
         recipients = new address[](3);
         recipients[0] = makeAddr("recipient_0");
@@ -42,19 +53,20 @@ contract DefaultTokenizedSharesTest is Test {
         shares[1] = 2_000;
         shares[2] = 1_000;
 
-        address proxy = factory.addTokenizedShares(recipients, shares);
-        string memory uri = DefaultTokenizedShares(proxy).uri(0);
+        tokenizedShares = TokenizedShares(controller.addTokenizedShares(keeperShares, recipients, shares, name, symbol));
+    }
+
+    function testURI() public {
+        string memory uri = TokenizedShares(tokenizedShares).uri(0);
+        assertTrue(bytes(uri).length > 0);
         // console.log(uri);
 
-        (bool success,) = payable(proxy).call{value: 123.456 ether}("");
-        assertTrue(success);
+        vm.prank(recipients[0]);
+        TokenizedShares(tokenizedShares).setCustomRenderer(address(customRenderer));
+        assertEq(TokenizedShares(tokenizedShares).customRenderer(), address(customRenderer));
 
-        ITokenizedShares(proxy).releaseShares(recipients);
-
-        uint256 gasLeft = gasleft();
-        uri = DefaultTokenizedShares(proxy).uri(0);
-        console.log("Gas used by uri function:", gasLeft - gasleft());
-
-        console.log(uri);
+        uri = TokenizedShares(tokenizedShares).uri(0);
+        assertTrue(bytes(uri).length > 0);
+        assertEq(uri, "CUSTOM_RENDERING_RESULT");
     }
 }

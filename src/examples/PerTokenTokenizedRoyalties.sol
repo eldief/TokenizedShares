@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.20;
 
-import "../SharesFactory.sol";
-import "../ERC1155TokenizedShares.sol";
-import "./ERC1155TokenizedSharesMock.sol";
+import {TokenizedSharesController} from "../TokenizedSharesController.sol";
 import "solady/tokens/ERC721.sol";
 
 interface IERC2981 {
@@ -20,7 +18,8 @@ interface IERC2981 {
  */
 contract PerTokenTokenizedRoyalties is ERC721, IERC2981 {
     address public immutable owner;
-    ISharesFactory public immutable factory;
+
+    TokenizedSharesController public immutable controller;
 
     uint256 public constant ROYALTIES_BPS = 1_000; // 10%
 
@@ -30,8 +29,8 @@ contract PerTokenTokenizedRoyalties is ERC721, IERC2981 {
         // Store contract owner
         owner = msg.sender;
 
-        // Reference ISharesFactory implementation
-        factory = ISharesFactory(factory_);
+        // Reference ITokenizedSharesFactory implementation
+        controller = TokenizedSharesController(factory_);
 
         // Optionally subscribe to Operator Filter here
     }
@@ -46,8 +45,10 @@ contract PerTokenTokenizedRoyalties is ERC721, IERC2981 {
         shares[0] = 5_000; // 50%
         shares[1] = 5_000; // 50%
 
-        // Store ITokenizedShares proxy address
-        perTokenTokenizedShares[tokenId] = factory.addTokenizedShares(recipients, shares);
+        // Create new and store `ITokenizedShares` address with 5% keeperShares and distribute `shares` to `recipients`
+        perTokenTokenizedShares[tokenId] = controller.addTokenizedShares(
+            500, recipients, shares, string.concat(name(), " - Royalties Shares"), string.concat(symbol(), "RS")
+        );
 
         // Mint token
         _mint(to, tokenId);
@@ -66,12 +67,12 @@ contract PerTokenTokenizedRoyalties is ERC721, IERC2981 {
 
     // Override with custom logic
     function name() public pure override returns (string memory) {
-        return "";
+        return "Per Token Tokenized Royalties";
     }
 
     // Override with custom logic
     function symbol() public pure override returns (string memory) {
-        return "";
+        return "PTTR";
     }
 
     // Override with custom logic

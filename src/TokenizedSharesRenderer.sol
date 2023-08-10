@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.20;
 
-import "./ERC1155TokenizedShares.sol";
-import "solady/utils/Base64.sol";
-import "solady/utils/SSTORE2.sol";
-import "solady/utils/LibString.sol";
-import "solady/utils/DynamicBufferLib.sol";
+import {ITokenizedSharesRenderer} from "./interfaces/ITokenizedSharesRenderer.sol";
+import {Base64} from "solady/utils/Base64.sol";
+import {SSTORE2} from "solady/utils/SSTORE2.sol";
+import {LibString} from "solady/utils/LibString.sol";
+import {DynamicBufferLib} from "solady/utils/DynamicBufferLib.sol";
 
 /**
- * @title DefaultTokenizedShares.
+ * @title  .
  * @author @eldief
  * @notice Default implementation of TokenizedShares.
  */
-contract DefaultTokenizedShares is ERC1155TokenizedShares {
+contract TokenizedSharesRenderer is ITokenizedSharesRenderer {
     using LibString for *;
     using DynamicBufferLib for DynamicBufferLib.DynamicBuffer;
 
@@ -36,29 +36,14 @@ contract DefaultTokenizedShares is ERC1155TokenizedShares {
     }
 
     //--------------------------------------//
-    //               GETTERS                //
-    //--------------------------------------//
-
-    function name() public view returns (string memory) {
-        return string(abi.encodePacked("Tokenized Shares ", bytes(address(this).toHexStringChecksummed())));
-    }
-
-    function symbol() public pure returns (string memory) {
-        return "TOKS";
-    }
-
-    //--------------------------------------//
     //              RENDERERING             //
     //--------------------------------------//
-
-    function uri(uint256) public view override returns (string memory) {
-        TokenizedSharesStorage.Layout storage layout = TokenizedSharesStorage.layout();
-
-        bytes memory strAddress = bytes(address(this).toHexStringChecksummed());
-        bytes memory strTotalReleased = buildStrTotalReleased(layout);
+    function render(RenderRequest calldata request) public view override returns (string memory) {
+        bytes memory strAddress = bytes(request.tokenizedShares.toHexStringChecksummed());
+        bytes memory strTotalReleased = buildStrTotalReleased(request.totalReleased);
 
         DynamicBufferLib.DynamicBuffer memory jsonBuffer;
-        jsonBuffer.append('{"name":"', bytes(name()), '",');
+        jsonBuffer.append('{"name":"', bytes(request.name), '",');
         jsonBuffer.append('"description":"Tokenized Shares Id:', strAddress, '",');
         jsonBuffer.append('"attributes":', buildAttributes(strTotalReleased, strAddress), ",");
         jsonBuffer.append('"image":"data:image/svg+xml;base64,', buildImage(strTotalReleased, strAddress), '"}');
@@ -66,11 +51,9 @@ contract DefaultTokenizedShares is ERC1155TokenizedShares {
         return string(abi.encodePacked("data:application/json;base64,", bytes(Base64.encode(jsonBuffer.data))));
     }
 
-    function buildStrTotalReleased(TokenizedSharesStorage.Layout storage layout) internal view returns (bytes memory) {
-        uint256 released = _totalReleased(layout);
-
-        uint256 integer = released / 1e18;
-        uint256 decimal = (released - integer * 1e18);
+    function buildStrTotalReleased(uint256 totalReleased) internal pure returns (bytes memory) {
+        uint256 integer = totalReleased / 1e18;
+        uint256 decimal = totalReleased - integer * 1e18;
 
         bytes memory strInteger = bytes(LibString.toString(integer));
         bytes memory strDecimal = bytes(LibString.toString(decimal));
