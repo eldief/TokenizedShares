@@ -1,122 +1,98 @@
 # Tokenized Shares
-  <img src="/image/TokenizedShares.png" width="600" height="600">
+<img src="/image/TokenizedShares.png" width="600" height="600">
 
-  Clone and mint Tokenized Shares to be set as ETH payment recipients. Each share represent 0.1% (1 bips) of total accrued.  
-  Inspired by 0xSplits Liquid Split: https://docs.0xsplits.xyz/templates/liquid
+## Description
+ERC1155 tradeable rights on ETH payements. Each share represent 0.1% (1 bips) of total accrued.  
 
-
-# Addresses
-  Goerli:
-  - SharesFactory: [0xEdfe971b70Ebe665A60099e4d4fbd25140c29800](https://goerli.etherscan.io/address/0x7be13850c4c37d55166388ed0db2754c54eb52af)
-  - DefaultTokenizedShares: [0xb1296aa3599307cced1494c5fbacbb9d5e3241d5](https://goerli.etherscan.io/address/0x79906a1b020f57780f2e56fc33a83deee6a63a4f)
-  - OpenSea Testnet: https://testnets.opensea.io/assets/goerli/0x70826a5bcfb07e3984afb226d6cf8d1816ece144/0
-
-  Mainnet:
-  - SharesFactory: TBD
-  - DefaultTokenizedShares: TBD
+Inspired by 0xSplits Liquid Split: https://docs.0xsplits.xyz/templates/liquid
 
 
+## Installation
 
-# Compatibility
-  All contract storages are built with UnstructuredStorage for Proxy/Diamond compatibility.
+#### Install
+```
+forge install https://github.com/eldief/tokenized-shares
+```
 
+#### Install/update submodules
+```
+git submodule update --init --recursive
+```
 
-
-# Composability
-  TokenizedShares as tradeable royalties rights:  
-
-  Unlock maximum composability for your protocol setting your custom `ITokenizedShares` as royalties recipient.  
-  Royalites can be accrued on proxied `ITokenizedShares` and later proportionally released to shares `owners` by anyone.  
-
-  A `keeperShares` fee can be set during proxy creation to involve keepers in share releasing when profitable.
-
-  Granularity can be custom defined on protocol implementation, you can decide if `ITokenizedShares` is for accruing royalties for a whole collection, multiple collections or for a single token.  
-  Examples can be found [here](https://github.com/eldief/TokenizedShares/tree/main/src/examples). 
-
-  Being ERC1155 or ERC20 tokens, TokenizedShares can be traded freely on the open market allowing for more building blocks to be developed on.  
-
-  Buying a TokenizedShare of a collection would allow it's owner to bet on a collection volume, removing floor price from the equation.
+#### Add remappings
+```
+solady/=lib/tokenized-shares/lib/solady/src/
+tokenized-shares/=lib/tokenized-shares/src/
+```
 
 
+## Usage
 
-# Contracts
+#### Import
+```
+import {ITokenizedShares} from "tokenized-shares/TokenizedShares.sol";
+import {ITokenizedSharesController} from "tokenized-shares/TokenizedSharesController.sol";
+```
 
-## SharesFactory 
-  Tokenized Shares Factory [contract](https://github.com/eldief/TokenizedShares/blob/main/src/SharesFactory.sol).  
-  
-  Functions: 
+#### Create
+```
+address newTokenizedShares = ITokenizedSharesController(controller).addTokenizedShares(
+    keeperShares, recipients, shares, name, symbol
+);
+```
 
-  `addTokenizedShares`: Create a new proxy to `ITokenizedShares` and mint shares to recipients.
-  - `recipients`: Address array to mint Shares to.
-    - Required.
-    - Cannot be empty.
+#### Deposit
+```
+payable(newTokenizedShares).call{value:amount}("");
+```
 
-  - `shares`: Uint256 array of shares amount to be minted for each `recipients`.
-    - Required.
-    - Must have the same length of `recipients`.
-    - Sum of `shares` + `keeperShares` must be exactly 10_000.
-
-  - `implementation`: Custom `ITokenizedShares` implementation to be proxied.
-    - Optional. 
-    - Default: `defaultImplementation`.
-
-  - `keeperShares`: Amount reserved to be payed to keepers (`tx.origin`) while executing `releaseShares`. 
-    - Optional. 
-    - Default: 0%. 
-    - Max: 1_000 (10%).
-    - Sum of `shares` + `keeperShares` must be exactly 10_000.
-
-  `releaseShares`: Release ETH accrued by `ITokenizedShares`.
-  - `owners`: Address array of shares owners to release ETH to.
-    - Required.
-    - Cannot be empty.
-
-  - `tokenizedShares`: Address array of `ITokenizedShares` proxies.
-    - Optional.
-    - Default: All `ITokenizedShares` created by `SharesFactory`.
-
-  `releasable`: Returns ETH accrued by `ITokenizedShares` for `owner`.
-  - `owner`: Address of shares owner to release ETH to.
-    - Required.
-
-  - `tokenizedShares`: Address array of `ITokenizedShares` proxies.
-    - Optional.
-    - Default: All `ITokenizedShares` created by `SharesFactory`.
+#### Release
+```
+ITokenizedSharesController(controller).releaseShares(recipients);
+```
 
 
-## ITokenizedShares 
-  [Interface](https://github.com/eldief/TokenizedShares/blob/main/src/interfaces/ITokenizedShares.sol) that defines TokenizedShares implementation.  
-  
-  Functions:
-  
-  `factoryMintShares`: Mint new shares. 
- 
-  `releaseShares`: Release ETH to `owners`, proportionally on how many `TokenShares` they own.  
-  
-  `releasable`: Returns ETH accrued by `ITokenizedShares` for `owner`.  
-  
-  `totalReleased`: Returns total amount of ETH released by `ITokenizedShares` contract for owners and keepers.  
+## Addresses
+| Chain       | Implementation                             | Controller                                 | Default Renderer                            |
+|-------------|--------------------------------------------|--------------------------------------------|---------------------------------------------|
+| ETH Goerli  | 0x0000000000000000000000000000000000000000 | 0x0000000000000000000000000000000000000000 |  0x0000000000000000000000000000000000000000 |
+| ETH Mainnet | 0x0000000000000000000000000000000000000000 | 0x0000000000000000000000000000000000000000 |  0x0000000000000000000000000000000000000000 |
 
 
-## DefaultTokenizedShares
-  Default ERC1155 [contract](https://github.com/eldief/TokenizedShares/blob/main/src/DefaultTokenizedShares.sol) `ITokenizedShares` implementation. This contract will be proxied if no `implementation` is set during `addTokenizedShares`.  
-  
-  Comes with a pretty on-chain dynamic svg displaying proxy address and total ETH released by it! 
+## Use Cases
+Some examples [here](https://github.com/eldief/tokenized-shares/tree/main/src/examples)
+
+- NFT Royalties Recipient: Tokenized Shares can be set as the royalty recipient for Collections, Protocols or even single tokenId, allowing simple royalty dynamic distribution and enabling trading them as a royalty volume derivative. This way a Tokenized Shares owner can bet on trading volume instead of floor prices.
+
+- Fundraising: Tokenized Shares can be sold to investors enabling real-time revenue distribution. No more forced ERC20 tokens to justify fund raising.
+
+- DAOs: Tokenized Shares can be used as a gatekeeping/vote token with a 51% quorum, allowing decision enforcement within decentralized organizations.
+
+- Nested ETH distribution: Tokenized Shares are mintable to other Tokenized Shares contracts unlocking infinite composability for ETH distribution.
+
+- Combination of the above: combining use-cases, Tokenized Shares can create a custom experience for everyone.
+   
+- And much more... 
 
 
-## ERC20TokenizedShares
-  Abstract [contract](https://github.com/eldief/TokenizedShares/blob/main/src/ERC20TokenizedShares.sol) defining a default ERC20 `ITokenizedShares` implementation.
+## Contribution
+We welcome contributions to this repository.  
+Please feel free to open an issue or submit a pull request if you have any enhancements or find any bugs.
 
 
-## ERC1155TokenizedShares
-  Abstract [contract](https://github.com/eldief/TokenizedShares/blob/main/src/ERC1155TokenizedShares.sol) defining a default ERC1155 `ITokenizedShares` implementation.
+## License
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+
+## Safety
+This is experimental software and is provided on an "as is" and "as available" basis.
+
+We do not give any warranties and will not be liable for any loss incurred through any use of this codebase.
 
 
 
-# Contributions
-We welcome contributions to this repository. Please feel free to open an issue or submit a pull request if you have any enhancements or find any bugs.
 
-
-
-# Disclaimer
-These smart contracts are for educational purposes only and not intended for production use. Use at your own risk. Always make sure to test them thoroughly before deploying them into a production environment.
+## Contacts
+Feel free to reach out on:
+- [Twitter (X)](https://twitter.com/Filllqq)
+- [Telegram](https://t.me/eldief)
