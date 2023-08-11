@@ -40,7 +40,7 @@ contract TokenizedSharesTest is Test {
     TokenizedShares public tokenizedShares;
 
     function setUp() public {
-        renderer = new TokenizedSharesRenderer(address(0), address(1), address(2), address(3));
+        renderer = new TokenizedSharesRenderer();
         implementation = new TokenizedShares(address(renderer));
         controller = new TokenizedSharesController(address(implementation));
 
@@ -217,12 +217,13 @@ contract TokenizedSharesTest is Test {
         vm.expectRevert();
         tokenizedShares.transferDepositedShares(recipients[0], address(1), 100);
 
-        TokenizedShares tokenizedShares2 = TokenizedShares(controller.addTokenizedShares(keeperShares, recipients, shares, name, symbol));
+        TokenizedShares tokenizedShares2 =
+            TokenizedShares(controller.addTokenizedShares(keeperShares, recipients, shares, name, symbol));
         vm.prank(recipients[0]);
         vm.expectEmit(true, true, true, true);
         emit TransferSingle(recipients[0], recipients[0], address(tokenizedShares), 0, 1_999);
         tokenizedShares2.safeTransferFrom(recipients[0], address(tokenizedShares), 0, 1_999, "");
-        
+
         vm.prank(recipients[0]);
         vm.expectEmit(true, true, true, true);
         emit TransferSingle(address(tokenizedShares), address(tokenizedShares), recipients[0], 0, 1_999);

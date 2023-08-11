@@ -29,7 +29,7 @@ contract TokenizedSharesControllerTest is Test {
     receive() external payable {}
 
     function setUp() public {
-        renderer = new TokenizedSharesRenderer(address(0), address(1), address(2), address(3));
+        renderer = new TokenizedSharesRenderer();
         implementation = new TokenizedShares(address(renderer));
         controller = new TokenizedSharesController(address(implementation));
     }

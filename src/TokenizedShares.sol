@@ -471,7 +471,7 @@ contract TokenizedShares is ITokenizedShares, IERC1155Receiver, Clone, ERC1155 {
     /**
      * @notice Allows to batch receive `ITokenizedShares`.
      * @dev Reverts when receiving invalid `ITokenizedShares`.
-     *     
+     *
      * @return Function signature for `onERC1155BatchReceived`, `0xbc197c81`.
      */
     function onERC1155BatchReceived(address, address, uint256[] calldata ids, uint256[] calldata values, bytes calldata)
