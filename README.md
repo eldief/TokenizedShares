@@ -54,7 +54,7 @@ ITokenizedSharesController(controller).releaseShares(recipients);
 ## Addresses
 | Chain       | Implementation                             | Controller                                 | Default Renderer                            |
 |-------------|--------------------------------------------|--------------------------------------------|---------------------------------------------|
-| ETH Goerli  | 0x0000000000000000000000000000000000000000 | 0x0000000000000000000000000000000000000000 |  0x0000000000000000000000000000000000000000 |
+| ETH Goerli  | [0x378CeB211C4972C7d6B1A185A426FA1553c56A69](https://goerli.etherscan.io/address/0x378ceb211c4972c7d6b1a185a426fa1553c56a69) | [0x54B22db76A9Be89c3BB743744DefD8A90D304325](https://goerli.etherscan.io/address/0x54b22db76a9be89c3bb743744defd8a90d304325) |  [0x0247D43cD619E7D6dE7257066c9fF0186754E65a](https://goerli.etherscan.io/address/0x0247d43cd619e7d6de7257066c9ff0186754e65a) |
 | ETH Mainnet | 0x0000000000000000000000000000000000000000 | 0x0000000000000000000000000000000000000000 |  0x0000000000000000000000000000000000000000 |
 
 
