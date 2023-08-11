@@ -1,5 +1,5 @@
 # Tokenized Shares
-<img src="/image/TokenizedShares.png" width="600" height="600">
+<img src="/image/logo.png" width="150" height="150">
 
 ## Description
 ERC1155 tradeable rights on ETH payements. Each share represent 0.1% (1 bips) of total accrued.  
