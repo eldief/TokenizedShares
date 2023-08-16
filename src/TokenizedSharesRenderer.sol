@@ -28,7 +28,7 @@ contract TokenizedSharesRenderer is ITokenizedSharesRenderer {
     //--------------------------------------//
     //              RENDERERING             //
     //--------------------------------------//
-    function render(RenderRequest calldata request) public view override returns (string memory) {
+    function render(RenderRequest calldata request) public pure override returns (string memory) {
         TokenizedShares memory tokenizedShares;
         tokenizedShares.stringAddress = bytes(request.tokenizedShares.toHexStringChecksummed());
         tokenizedShares.stringTotalReleased = getStringTotalReleased(request.totalReleased);

@@ -234,6 +234,15 @@ contract TokenizedSharesController is ITokenizedSharesController, Ownable {
         return (tokenizedShares, balances);
     }
 
+    /**
+     * @notice Returns `ITokenizedShares` contract addresses.
+     *
+     * @return `ITokenizedShares` contract addresses.
+     */
+    function tokenizedSharesAddresses() external view returns (address[] memory) {
+        return TokenizedSharesControllerStorage.layout().tokenizedShares;
+    }
+
     //--------------------------------------//
     //          INTERNAL FUNCTIONS          //
     //--------------------------------------//

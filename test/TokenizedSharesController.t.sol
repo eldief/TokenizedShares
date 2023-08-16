@@ -1330,4 +1330,36 @@ contract TokenizedSharesControllerTest is Test {
         assertTrue(amounts[0][1] == 3_000);
         assertTrue(amounts[0][2] == 2_000);
     }
+
+    function testTokenizedSharesAddresses() public {
+        address[] memory tokenizedSharesAddresses;
+        address tokenizedShares;
+        address[] memory recipients;
+        uint16[] memory shares;
+
+        tokenizedSharesAddresses = controller.tokenizedSharesAddresses();
+        assertTrue(tokenizedSharesAddresses.length == 0);
+
+        recipients = new address[](3);
+        recipients[0] = makeAddr("recipient_0");
+        recipients[1] = makeAddr("recipient_1");
+        recipients[2] = makeAddr("recipient_2");
+
+        shares = new uint16[](3);
+        shares[0] = 7_000;
+        shares[1] = 2_000;
+        shares[2] = 1_000;
+
+        tokenizedShares = controller.addTokenizedShares(0, recipients, shares, name, symbol);
+        tokenizedSharesAddresses = controller.tokenizedSharesAddresses();
+        assertTrue(tokenizedSharesAddresses.length == 1);
+
+        tokenizedShares = controller.addTokenizedShares(0, recipients, shares, name, symbol);
+        tokenizedSharesAddresses = controller.tokenizedSharesAddresses();
+        assertTrue(tokenizedSharesAddresses.length == 2);
+
+        tokenizedShares = controller.addTokenizedShares(0, recipients, shares, name, symbol);
+        tokenizedSharesAddresses = controller.tokenizedSharesAddresses();
+        assertTrue(tokenizedSharesAddresses.length == 3);
+    }
 }

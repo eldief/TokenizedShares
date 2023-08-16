@@ -74,4 +74,6 @@ interface ITokenizedSharesController {
         external
         view
         returns (address[] memory, uint256[][] memory);
+
+    function tokenizedSharesAddresses() external view returns (address[] memory);
 }
