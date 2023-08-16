@@ -93,5 +93,5 @@ We do not give any warranties and will not be liable for any loss incurred throu
 
 ## Contacts
 Feel free to reach out on:
-- [Twitter (X)](https://twitter.com/Filllqq)
+- [Twitter (X)](https://twitter.com/eldief_)
 - [Telegram](https://t.me/eldief)
